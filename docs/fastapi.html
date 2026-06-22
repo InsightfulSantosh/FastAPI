@@ -176,6 +176,7 @@ pre .num{color:#ff9aa2}
       <button class="nav-btn" onclick="show('testing')" role="tab" aria-controls="testing" aria-selected="false">Testing</button>
       <button class="nav-btn" onclick="show('production')" role="tab" aria-controls="production" aria-selected="false">Production</button>
       <button class="nav-btn" onclick="show('interview')" role="tab" aria-controls="interview" aria-selected="false">Interview</button>
+      <button class="nav-btn" onclick="show('statuscodes')" role="tab" aria-controls="statuscodes" aria-selected="false">Status Codes</button>
       <button class="nav-btn" onclick="show('cheatsheet')" role="tab" aria-controls="cheatsheet" aria-selected="false">Cheatsheet</button>
     </nav>
   </div>
@@ -243,6 +244,24 @@ pre .num{color:#ff9aa2}
   </table>
 
   <div class="tip"><p><strong>Rule of thumb:</strong> choose FastAPI when you want Python, strong validation, automatic API docs, async support, and clean API contracts without the weight of a full Django application.</p></div>
+
+  <h3>How FastAPI processes a request</h3>
+  <p>This request lifecycle is one of the most important mental models to understand before building larger APIs.</p>
+  <table>
+    <thead><tr><th>Step</th><th>What happens</th><th>FastAPI feature involved</th></tr></thead>
+    <tbody>
+      <tr><td>1. Client sends request</td><td>A browser, frontend app, mobile app, script, or service sends an HTTP request.</td><td>HTTP method, path, headers, query string, body</td></tr>
+      <tr><td>2. ASGI server receives it</td><td>Uvicorn receives the request and passes it to the FastAPI app.</td><td>ASGI, Uvicorn</td></tr>
+      <tr><td>3. Router matches endpoint</td><td>FastAPI matches method and path to a route function.</td><td><code>@app.get</code>, <code>@app.post</code>, <code>APIRouter</code></td></tr>
+      <tr><td>4. Parameters are extracted</td><td>Path, query, header, cookie, body, file, or form data is read.</td><td>Function signature, <code>Path</code>, <code>Query</code>, <code>Header</code>, <code>File</code></td></tr>
+      <tr><td>5. Validation runs</td><td>Pydantic validates and converts data. Invalid data returns <code>422</code>.</td><td>Pydantic models, <code>Field</code>, validators</td></tr>
+      <tr><td>6. Dependencies run</td><td>Reusable logic such as DB sessions, auth, or settings is injected.</td><td><code>Depends()</code>, <code>Security()</code></td></tr>
+      <tr><td>7. Endpoint logic runs</td><td>Your Python function performs business logic.</td><td>Route function, service layer, CRUD layer</td></tr>
+      <tr><td>8. Response is serialized</td><td>FastAPI converts Python objects to JSON and applies response models.</td><td><code>response_model</code>, JSON serialization</td></tr>
+      <tr><td>9. Middleware wraps response</td><td>Middleware can add headers, logs, timing, CORS, compression, etc.</td><td>Middleware stack</td></tr>
+      <tr><td>10. Client receives response</td><td>The client receives status code, headers, and body.</td><td>HTTP response</td></tr>
+    </tbody>
+  </table>
 
   <h3>How to study this guide</h3>
   <div class="callout-grid">
@@ -1443,6 +1462,64 @@ CMD [<span class="str">"uvicorn"</span>, <span class="str">"main:app"</span>, <s
   </div>
 </div>
 
+<div id="statuscodes" class="section">
+  <h2>HTTP Status Codes Reference</h2>
+  <p>Status codes are part of your API contract. They tell the client whether a request succeeded, failed because of client input, or failed because of a server problem.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Use status codes consistently. A frontend, mobile app, or another backend service often makes decisions based on status codes before reading the response body. Good status code choices make APIs easier to debug and integrate.</p>
+    <p>FastAPI automatically returns <code>422</code> for validation errors, but you should choose explicit codes for business behavior such as duplicate resources, missing records, unauthenticated requests, and forbidden actions.</p>
+  </div>
+
+  <h3>2xx - Success</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>FastAPI example</th></tr></thead>
+    <tbody>
+      <tr><td><code>200</code></td><td>OK</td><td>Request succeeded and returns a body.</td><td><code>GET /products/1</code></td></tr>
+      <tr><td><code>201</code></td><td>Created</td><td>A new resource was created.</td><td><code>@app.post(..., status_code=201)</code></td></tr>
+      <tr><td><code>202</code></td><td>Accepted</td><td>Request accepted but processing continues asynchronously.</td><td>Background job or queue submission.</td></tr>
+      <tr><td><code>204</code></td><td>No Content</td><td>Request succeeded but there is no response body.</td><td>Delete endpoint with no body.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3xx - Redirects</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>301</code></td><td>Moved Permanently</td><td>Resource moved permanently.</td><td>Old docs URL to new docs URL.</td></tr>
+      <tr><td><code>302</code></td><td>Found</td><td>Temporary redirect.</td><td>Login redirect flow.</td></tr>
+      <tr><td><code>304</code></td><td>Not Modified</td><td>Cached client copy is still valid.</td><td>Conditional GET with cache headers.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4xx - Client errors</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Common FastAPI source</th></tr></thead>
+    <tbody>
+      <tr><td><code>400</code></td><td>Bad Request</td><td>Request is valid JSON but violates a business rule.</td><td>Duplicate SKU, invalid operation.</td></tr>
+      <tr><td><code>401</code></td><td>Unauthorized</td><td>User is not authenticated.</td><td>Missing or invalid bearer token.</td></tr>
+      <tr><td><code>403</code></td><td>Forbidden</td><td>User is authenticated but not allowed.</td><td>Non-admin tries admin action.</td></tr>
+      <tr><td><code>404</code></td><td>Not Found</td><td>Resource does not exist.</td><td>ID lookup returns nothing.</td></tr>
+      <tr><td><code>409</code></td><td>Conflict</td><td>Request conflicts with current state.</td><td>Duplicate unique field or version conflict.</td></tr>
+      <tr><td><code>415</code></td><td>Unsupported Media Type</td><td>Client sends unsupported content type.</td><td>Expected JSON but received unsupported body type.</td></tr>
+      <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>Validation failed.</td><td>Pydantic validation error.</td></tr>
+      <tr><td><code>429</code></td><td>Too Many Requests</td><td>Client exceeded rate limit.</td><td>Rate limiting middleware/dependency.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5xx - Server errors</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Production note</th></tr></thead>
+    <tbody>
+      <tr><td><code>500</code></td><td>Internal Server Error</td><td>Unhandled bug or unexpected server failure.</td><td>Log the stack trace; return a clean message.</td></tr>
+      <tr><td><code>502</code></td><td>Bad Gateway</td><td>Upstream service returned invalid response.</td><td>Often from proxy or service gateway.</td></tr>
+      <tr><td><code>503</code></td><td>Service Unavailable</td><td>Service is temporarily unavailable.</td><td>Maintenance, overload, dependency outage.</td></tr>
+      <tr><td><code>504</code></td><td>Gateway Timeout</td><td>Upstream service timed out.</td><td>Investigate slow dependencies and timeouts.</td></tr>
+    </tbody>
+  </table>
+</div>
+
 <div id="cheatsheet" class="section">
   <h2>Cheatsheet</h2>
 
@@ -1551,6 +1628,7 @@ const sectionOrder = [
   'testing',
   'production',
   'interview',
+  'statuscodes',
   'cheatsheet'
 ];
 const searchInput = document.getElementById('guideSearch');
