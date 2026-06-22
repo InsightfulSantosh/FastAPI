@@ -1,0 +1,1675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FastAPI Complete Study Guide</title>
+<style>
+:root{
+  --font-sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f6f8fb;
+  --color-background-tertiary:#edf3f7;
+  --color-background-info:#e8f3ff;
+  --color-background-success:#e8f7ef;
+  --color-background-warning:#fff4df;
+  --color-text-primary:#17212b;
+  --color-text-secondary:#52606d;
+  --color-text-tertiary:#73808c;
+  --color-text-info:#175a9c;
+  --color-text-success:#106145;
+  --color-text-warning:#7a4a00;
+  --color-border-secondary:#ccd7e2;
+  --color-border-tertiary:#e2e9f0;
+  --color-border-success:#4fa978;
+  --color-border-warning:#d59a2d;
+  --border-radius-md:8px;
+  --border-radius-lg:8px;
+  --shadow-soft:0 18px 48px rgba(23,33,43,.08);
+  --shadow-tight:0 8px 24px rgba(23,33,43,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:linear-gradient(180deg,#f7fafc 0,#fff 360px);color:var(--color-text-primary);min-height:100vh}
+.skip-link{position:absolute;left:1rem;top:-42px;background:var(--color-text-primary);color:#fff;padding:.6rem .8rem;border-radius:6px;z-index:20;text-decoration:none}
+.skip-link:focus{top:1rem}
+.study-shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:1.5rem 0 3rem}
+.study-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1.25rem;align-items:end;padding:1.5rem 0 1.2rem;border-bottom:1px solid var(--color-border-tertiary)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0f6e56;margin-bottom:.45rem}
+.hero-title{font-size:clamp(28px,4vw,46px);font-weight:750;line-height:1.05;letter-spacing:0;color:var(--color-text-primary);margin:0 0 .65rem}
+.hero-subtitle{font-size:15px;max-width:680px;color:var(--color-text-secondary);line-height:1.65;margin:0}
+.hero-panel{display:grid;grid-template-columns:repeat(3,minmax(82px,1fr));gap:.65rem;min-width:320px}
+.metric{background:rgba(255,255,255,.86);border:1px solid var(--color-border-tertiary);border-radius:8px;padding:.75rem;box-shadow:var(--shadow-tight)}
+.metric strong{display:block;font-size:20px;line-height:1;color:var(--color-text-primary);margin-bottom:.35rem}
+.metric span{display:block;font-size:11px;color:var(--color-text-secondary);line-height:1.25}
+.toolbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--color-border-tertiary);padding:.85rem 0 1rem;margin-bottom:1.5rem}
+.toolbar-row{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:1rem;align-items:center}
+.search-wrap{position:relative}
+.search-input{width:100%;height:40px;border:1px solid var(--color-border-secondary);border-radius:8px;background:var(--color-background-primary);padding:0 2.25rem 0 .85rem;font:500 13px var(--font-sans);color:var(--color-text-primary);outline:none}
+.search-input:focus{border-color:#3383c9;box-shadow:0 0 0 3px rgba(51,131,201,.14)}
+.clear-search{position:absolute;right:.45rem;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;background:transparent;color:var(--color-text-tertiary);cursor:pointer;border-radius:6px;display:none}
+.clear-search:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.clear-search.visible{display:grid;place-items:center}
+.nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.nav-btn{padding:8px 12px;border-radius:8px;font-size:13px;font-weight:650;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--color-text-secondary);transition:background .15s,border-color .15s,color .15s,transform .15s}
+.nav-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:#b8d8f7}
+.nav-btn:hover:not(.active){background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nav-btn:focus-visible,.copy-btn:focus-visible,.clear-search:focus-visible{outline:3px solid rgba(51,131,201,.25);outline-offset:2px}
+.progress-track{height:4px;background:var(--color-background-tertiary);border-radius:999px;margin-top:.85rem;overflow:hidden}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#0f6e56,#246fa8);border-radius:inherit;transition:width .2s}
+.section{display:none;animation:fadeIn .18s ease-out}
+.section.active{display:block}
+.section.search-match{display:block}
+@keyframes fadeIn{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:none}}
+h2{font-size:22px;font-weight:720;color:var(--color-text-primary);margin-bottom:1rem;letter-spacing:0}
+h3{font-size:16px;font-weight:700;color:var(--color-text-primary);margin:1.5rem 0 0.65rem;letter-spacing:0}
+p{font-size:14px;color:var(--color-text-secondary);line-height:1.75;margin-bottom:0.8rem}
+strong{color:var(--color-text-primary)}
+code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:2px 6px;border-radius:4px;color:var(--color-text-primary);overflow-wrap:anywhere}
+pre{position:relative;background:#101820;border:1px solid #263544;border-radius:8px;padding:1rem;overflow-x:auto;margin:0.85rem 0 1.05rem;box-shadow:var(--shadow-tight)}
+pre code{background:none;padding:0;font-size:12.5px;line-height:1.8;color:#edf6ff}
+.copy-btn{position:absolute;right:.7rem;top:.7rem;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#dce8f2;border-radius:6px;padding:.3rem .5rem;font:700 11px var(--font-sans);cursor:pointer;opacity:0;transition:opacity .15s,background .15s}
+pre:hover .copy-btn,.copy-btn:focus-visible{opacity:1}
+.copy-btn:hover{background:rgba(255,255,255,.16)}
+.card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:8px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 0 rgba(23,33,43,.03)}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:58px;font-size:11px;font-weight:750;padding:4px 8px;border-radius:6px;line-height:1}
+.badge-get{background:#E1F5EE;color:#0F6E56}
+.badge-post{background:#E6F1FB;color:#185FA5}
+.badge-put{background:#FAEEDA;color:#854F0B}
+.badge-delete{background:#FCEBEB;color:#A32D2D}
+.badge-ws{background:#EEEDFE;color:#534AB7}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:0.75rem 0}
+.method-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-border-tertiary)}
+.method-row:last-child{border-bottom:none}
+.tip{background:var(--color-background-success);border-left:4px solid var(--color-border-success);padding:12px 14px;border-radius:0 8px 8px 0;margin:0.85rem 0}
+.tip p{color:var(--color-text-success);margin:0;font-size:13px}
+.warn{background:var(--color-background-warning);border-left:4px solid var(--color-border-warning);padding:12px 14px;border-radius:0 8px 8px 0;margin:0.85rem 0}
+.warn p{color:var(--color-text-warning);margin:0;font-size:13px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:0.85rem 0;border:1px solid var(--color-border-tertiary);border-radius:8px;overflow:hidden;background:var(--color-background-primary)}
+th{text-align:left;padding:10px 12px;font-weight:750;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-bottom:1px solid var(--color-border-tertiary)}
+td{padding:10px 12px;border-bottom:1px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:top;line-height:1.55}
+td code{font-size:11.5px}
+tr:last-child td{border-bottom:none}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:0.75rem 0}
+.concept-card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:8px;padding:0.95rem 1rem;box-shadow:0 1px 0 rgba(23,33,43,.03)}
+.concept-card .label{font-size:11px;font-weight:750;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
+.concept-card .value{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.concept-card .desc{font-size:12px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5}
+.empty-state{display:none;border:1px dashed var(--color-border-secondary);border-radius:8px;padding:1rem;color:var(--color-text-secondary);background:var(--color-background-primary);margin-bottom:1rem}
+.empty-state.visible{display:block}
+.study-list{margin:.75rem 0 1rem 1.15rem;color:var(--color-text-secondary);font-size:14px;line-height:1.7}
+.study-list li{margin:.3rem 0}
+.callout-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:1rem 0}
+.mini-title{font-size:13px;font-weight:750;color:var(--color-text-primary);margin-bottom:.35rem}
+.endpoint-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:start}
+.endpoint-card code{display:inline-block;margin-bottom:.35rem}
+.checklist{display:grid;gap:8px;margin:.8rem 0 1rem}
+.check-item{display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:start;font-size:14px;color:var(--color-text-secondary);line-height:1.55}
+.check-item span:first-child{width:20px;height:20px;border-radius:6px;background:var(--color-background-success);color:var(--color-text-success);display:grid;place-items:center;font-weight:800;font-size:12px}
+.theory-box{background:#fbfdff;border:1px solid var(--color-border-tertiary);border-left:4px solid #246fa8;border-radius:8px;padding:1rem 1.1rem;margin:1rem 0;box-shadow:0 1px 0 rgba(23,33,43,.03)}
+.theory-box h3{margin-top:0}
+.theory-box p:last-child{margin-bottom:0}
+.kw{color:#185FA5}
+.fn{color:#0F6E56}
+.str{color:#854F0B}
+.cm{color:#888780}
+.num{color:#A32D2D}
+pre .kw{color:#8ab4ff}
+pre .fn{color:#7bd88f}
+pre .str{color:#ffd479}
+pre .cm{color:#8fa1b3}
+pre .num{color:#ff9aa2}
+@media (max-width:820px){
+  .study-shell{width:min(100% - 24px,1120px);padding-top:.75rem}
+  .study-hero{grid-template-columns:1fr;align-items:start}
+  .hero-panel{min-width:0;width:100%;grid-template-columns:repeat(3,1fr)}
+  .toolbar-row{grid-template-columns:1fr}
+  .nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:.2rem;scrollbar-width:thin}
+  .nav-btn{white-space:nowrap}
+}
+@media (max-width:520px){
+  .hero-panel{grid-template-columns:1fr}
+  .metric{display:flex;align-items:baseline;justify-content:space-between;gap:1rem}
+  h2{font-size:19px}
+  h3{font-size:15px}
+  pre{padding:.9rem .85rem}
+  .copy-btn{opacity:1}
+  table{display:block;overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#content">Skip to content</a>
+
+<main class="study-shell" id="content">
+<header class="study-hero">
+  <div>
+    <div class="eyebrow">FastAPI Study Notes</div>
+    <h1 class="hero-title">Complete Study Guide</h1>
+    <p class="hero-subtitle">A general FastAPI study guide with theory, practical examples, validation patterns, database design, authentication, testing, deployment, and a small project case study.</p>
+  </div>
+  <div class="hero-panel" aria-label="Guide summary">
+    <div class="metric"><strong>13</strong><span>Study sections</span></div>
+    <div class="metric"><strong>60+</strong><span>Code examples</span></div>
+    <div class="metric"><strong>45 min</strong><span>Deep review</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-row">
+    <div class="search-wrap">
+      <input class="search-input" id="guideSearch" type="search" placeholder="Search FastAPI topics" autocomplete="off">
+      <button class="clear-search" id="clearSearch" type="button" aria-label="Clear search">x</button>
+    </div>
+    <nav class="nav" role="tablist" aria-label="Study sections">
+      <button class="nav-btn active" onclick="show('intro')" role="tab" aria-controls="intro" aria-selected="true">Introduction</button>
+      <button class="nav-btn" onclick="show('routing')" role="tab" aria-controls="routing" aria-selected="false">Routing</button>
+      <button class="nav-btn" onclick="show('pydantic')" role="tab" aria-controls="pydantic" aria-selected="false">Pydantic & Validation</button>
+      <button class="nav-btn" onclick="show('di')" role="tab" aria-controls="di" aria-selected="false">Dependency Injection</button>
+      <button class="nav-btn" onclick="show('errors')" role="tab" aria-controls="errors" aria-selected="false">Error Handling</button>
+      <button class="nav-btn" onclick="show('advanced')" role="tab" aria-controls="advanced" aria-selected="false">Advanced</button>
+      <button class="nav-btn" onclick="show('project')" role="tab" aria-controls="project" aria-selected="false">Case Study</button>
+      <button class="nav-btn" onclick="show('database')" role="tab" aria-controls="database" aria-selected="false">Database</button>
+      <button class="nav-btn" onclick="show('auth')" role="tab" aria-controls="auth" aria-selected="false">Auth</button>
+      <button class="nav-btn" onclick="show('testing')" role="tab" aria-controls="testing" aria-selected="false">Testing</button>
+      <button class="nav-btn" onclick="show('production')" role="tab" aria-controls="production" aria-selected="false">Production</button>
+      <button class="nav-btn" onclick="show('interview')" role="tab" aria-controls="interview" aria-selected="false">Interview</button>
+      <button class="nav-btn" onclick="show('cheatsheet')" role="tab" aria-controls="cheatsheet" aria-selected="false">Cheatsheet</button>
+    </nav>
+  </div>
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+</div>
+
+<div class="empty-state" id="emptyState">No matching FastAPI topics found.</div>
+
+<div id="intro" class="section active">
+  <h2>What is FastAPI?</h2>
+  <p>FastAPI is a modern Python web framework for building APIs. It is built on <strong>Starlette</strong> (for HTTP) and <strong>Pydantic</strong> (for data validation), and uses Python type hints throughout to give you editor autocomplete, runtime validation, and auto-generated docs with zero extra work.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>An API is a contract between a client and a server. The client sends an HTTP request, the server validates it, runs business logic, and returns a structured HTTP response. FastAPI makes this contract explicit by using Python function signatures and Pydantic models as the source of truth.</p>
+    <p>This same pattern applies to any domain: users, products, orders, appointments, health profiles, payments, files, or employees. A good FastAPI application makes that contract clear through routes, schemas, status codes, and documentation.</p>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="label"><i class="ti ti-bolt" aria-hidden="true"></i> Performance</div>
+      <div class="value">Async-first</div>
+      <div class="desc">On par with Node.js and Go. Powered by async/await and ASGI.</div>
+    </div>
+    <div class="concept-card">
+      <div class="label"><i class="ti ti-file-text" aria-hidden="true"></i> Auto Docs</div>
+      <div class="value">Swagger + ReDoc</div>
+      <div class="desc">Interactive docs generated automatically from your code at /docs and /redoc.</div>
+    </div>
+    <div class="concept-card">
+      <div class="label"><i class="ti ti-shield-check" aria-hidden="true"></i> Validation</div>
+      <div class="value">Pydantic v2</div>
+      <div class="desc">All request/response data is validated automatically. Errors return clean JSON.</div>
+    </div>
+    <div class="concept-card">
+      <div class="label"><i class="ti ti-code" aria-hidden="true"></i> Type Safety</div>
+      <div class="value">Python hints</div>
+      <div class="desc">Function signatures are the source of truth for routes, params, and bodies.</div>
+    </div>
+    <div class="concept-card">
+      <div class="label"><i class="ti ti-package" aria-hidden="true"></i> DI System</div>
+      <div class="value">Depends()</div>
+      <div class="desc">First-class dependency injection for auth, DB sessions, shared logic.</div>
+    </div>
+    <div class="concept-card">
+      <div class="label"><i class="ti ti-server" aria-hidden="true"></i> ASGI Server</div>
+      <div class="value">Uvicorn</div>
+      <div class="desc">Lightweight, ultra-fast ASGI server. Use Gunicorn + Uvicorn workers in prod.</div>
+    </div>
+  </div>
+
+  <h3>FastAPI compared with other API frameworks</h3>
+  <p>FastAPI is not the only way to build APIs in Python. The best framework depends on the project size, team experience, performance needs, and how much structure you want.</p>
+  <table>
+    <thead><tr><th>Framework</th><th>Best for</th><th>Strengths</th><th>Tradeoffs</th></tr></thead>
+    <tbody>
+      <tr><td><code>FastAPI</code></td><td>Modern APIs, ML services, microservices, typed backends</td><td>Fast, async-ready, automatic docs, Pydantic validation, dependency injection</td><td>Less built-in admin/auth than Django; you choose more architecture pieces yourself</td></tr>
+      <tr><td><code>Flask</code></td><td>Small apps, prototypes, simple APIs</td><td>Minimal, flexible, huge ecosystem, easy to learn</td><td>No built-in validation/docs/async structure; larger apps need more manual design</td></tr>
+      <tr><td><code>Django REST Framework</code></td><td>Large database-backed apps, admin-heavy products</td><td>Django ORM, admin panel, auth, permissions, serializers, mature ecosystem</td><td>Heavier; async story and type-driven docs are not as natural as FastAPI</td></tr>
+      <tr><td><code>Starlette</code></td><td>Low-level ASGI services and custom frameworks</td><td>Very lightweight, async-first, powerful primitives</td><td>Less high-level convenience; FastAPI already builds on Starlette</td></tr>
+      <tr><td><code>Sanic</code></td><td>Async Python APIs with high throughput</td><td>Async-first, performant, simple routing</td><td>Smaller ecosystem than Flask/Django/FastAPI</td></tr>
+      <tr><td><code>Express.js</code></td><td>Node.js APIs and JavaScript/TypeScript teams</td><td>Huge ecosystem, simple middleware model, frontend/backend language consistency</td><td>Validation and OpenAPI docs are not built in by default</td></tr>
+      <tr><td><code>NestJS</code></td><td>Structured TypeScript backend systems</td><td>Opinionated architecture, dependency injection, decorators, enterprise patterns</td><td>More framework ceremony; TypeScript/Node stack instead of Python</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip"><p><strong>Rule of thumb:</strong> choose FastAPI when you want Python, strong validation, automatic API docs, async support, and clean API contracts without the weight of a full Django application.</p></div>
+
+  <h3>How to study this guide</h3>
+  <div class="callout-grid">
+    <div class="card">
+      <div class="mini-title">Start with theory</div>
+      <p>Use Introduction, Routing, Pydantic, Dependency Injection, and Error Handling to learn the building blocks.</p>
+    </div>
+    <div class="card">
+      <div class="mini-title">Practice with examples</div>
+      <p>Use the code examples as patterns. They can apply to employee apps, ecommerce apps, health apps, dashboards, or internal tools.</p>
+    </div>
+    <div class="card">
+      <div class="mini-title">Move toward production</div>
+      <p>Use Database, Auth, Testing, and Production to understand what any real API needs before deployment.</p>
+    </div>
+  </div>
+
+  <h3>Installation & first app</h3>
+<pre><code><span class="cm"># Install</span>
+pip install fastapi uvicorn
+
+<span class="cm"># main.py</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+
+app = FastAPI(
+    title=<span class="str">"My First API"</span>,
+    description=<span class="str">"A simple FastAPI application"</span>,
+    version=<span class="str">"1.0.0"</span>,
+)
+
+@app.get(<span class="str">"/"</span>)
+<span class="kw">def</span> <span class="fn">home</span>():
+    <span class="kw">return</span> {<span class="str">"message"</span>: <span class="str">"Hello, FastAPI"</span>}
+
+<span class="cm"># Run</span>
+uvicorn main:app --reload</code></pre>
+
+  <div class="tip"><p><i class="ti ti-info-circle" aria-hidden="true"></i> <strong>--reload</strong> watches for file changes and restarts the server. Never use it in production.</p></div>
+
+  <h3>Application lifecycle</h3>
+<pre><code><span class="kw">from</span> contextlib <span class="kw">import</span> asynccontextmanager
+
+@asynccontextmanager
+<span class="kw">async def</span> <span class="fn">lifespan</span>(app: FastAPI):
+    <span class="cm"># startup: connect to DB, load models, etc.</span>
+    <span class="kw">yield</span>
+    <span class="cm"># shutdown: release resources</span>
+
+app = FastAPI(lifespan=lifespan)</code></pre>
+
+  <h3>Key URLs when running locally</h3>
+  <table>
+    <thead><tr><th>URL</th><th>What you get</th></tr></thead>
+    <tbody>
+      <tr><td><code>http://127.0.0.1:8000</code></td><td>Your API root</td></tr>
+      <tr><td><code>http://127.0.0.1:8000/docs</code></td><td>Swagger UI — interactive docs</td></tr>
+      <tr><td><code>http://127.0.0.1:8000/redoc</code></td><td>ReDoc — alternative docs</td></tr>
+      <tr><td><code>http://127.0.0.1:8000/openapi.json</code></td><td>Raw OpenAPI schema</td></tr>
+      <tr><td><code>https://your-username.github.io/your-repo-name/</code></td><td>Rendered GitHub Pages study guide from <code>docs/index.html</code></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="routing" class="section">
+  <h2>Routing & Request Types</h2>
+  <p>FastAPI maps Python functions to HTTP methods using decorators. Each route describes one operation the API can perform, such as reading a profile, creating an order, uploading a file, or deleting a record.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Routing is the process of matching an incoming request to the correct Python function. FastAPI looks at the HTTP method, the URL path, path parameters, query parameters, and request body to decide what function to call and what data to pass into it.</p>
+    <p>Good route design should make intent obvious. A route like <code>GET /users/101</code> clearly reads one user, while <code>DELETE /orders/501</code> clearly removes one order. This clarity matters because frontend developers, API users, tests, and documentation all depend on stable route contracts.</p>
+  </div>
+
+  <h3>Routing mental model</h3>
+  <table>
+    <thead><tr><th>Request part</th><th>FastAPI source</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>HTTP method</td><td>Decorator</td><td><code>@app.get</code>, <code>@app.post</code>, <code>@app.put</code>, <code>@app.delete</code></td></tr>
+      <tr><td>Path</td><td>Decorator path string</td><td><code>"/users/{user_id}"</code></td></tr>
+      <tr><td>Path value</td><td>Function parameter matching the path name</td><td><code>emp_id: int</code></td></tr>
+      <tr><td>Request body</td><td>Pydantic model parameter</td><td><code>payload: UserCreate</code></td></tr>
+      <tr><td>Response schema</td><td><code>response_model</code></td><td><code>UserResponse</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Where request data can come from</h3>
+  <table>
+    <thead><tr><th>Data source</th><th>FastAPI tool</th><th>When to use</th></tr></thead>
+    <tbody>
+      <tr><td>Path</td><td><code>/users/{user_id}</code></td><td>Identify one resource.</td></tr>
+      <tr><td>Query</td><td><code>limit: int = 20</code></td><td>Filtering, search, sorting, pagination.</td></tr>
+      <tr><td>JSON body</td><td><code>payload: UserCreate</code></td><td>Create/update structured data.</td></tr>
+      <tr><td>Header</td><td><code>Header()</code></td><td>Tokens, request IDs, client metadata.</td></tr>
+      <tr><td>Cookie</td><td><code>Cookie()</code></td><td>Session identifiers or browser state.</td></tr>
+      <tr><td>Form</td><td><code>Form()</code></td><td>HTML form submissions and OAuth2 login forms.</td></tr>
+      <tr><td>File</td><td><code>UploadFile = File(...)</code></td><td>Images, documents, CSVs, PDFs.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>HTTP methods</h3>
+  <div class="card">
+    <div class="method-row">
+      <span class="badge badge-get">GET</span>
+      <div><p style="margin:0;font-size:13px">Read / retrieve data. Safe and idempotent. Use for listings and detail views.</p></div>
+    </div>
+    <div class="method-row">
+      <span class="badge badge-post">POST</span>
+      <div><p style="margin:0;font-size:13px">Create a resource. Not idempotent — calling twice creates two records.</p></div>
+    </div>
+    <div class="method-row">
+      <span class="badge badge-put">PUT</span>
+      <div><p style="margin:0;font-size:13px">Full replace of a resource. Idempotent. Send the complete representation.</p></div>
+    </div>
+    <div class="method-row">
+      <span class="badge badge-get" style="background:#EEEDFE;color:#534AB7">PATCH</span>
+      <div><p style="margin:0;font-size:13px">Partial update. Only the fields you send are changed.</p></div>
+    </div>
+    <div class="method-row">
+      <span class="badge badge-delete">DELETE</span>
+      <div><p style="margin:0;font-size:13px">Remove a resource. Idempotent.</p></div>
+    </div>
+  </div>
+
+  <h3>Path parameters</h3>
+  <p>Declare a path parameter in the URL string and as a function argument with the same name. FastAPI validates the type automatically.</p>
+<pre><code>@app.get(<span class="str">"/users/{user_id}"</span>, response_model=UserResponse)
+<span class="kw">def</span> <span class="fn">get_user</span>(user_id: <span class="kw">int</span>):
+    user = find_user(user_id)
+    <span class="kw">if not</span> user:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">404</span>, detail=<span class="str">"User not found"</span>)
+    <span class="kw">return</span> user
+
+<span class="cm"># GET /users/101  -> returns user 101</span>
+<span class="cm"># GET /users/abc  -> 422, because user_id must be an integer</span></code></pre>
+
+  <h3>Query parameters</h3>
+  <p>The current project does not yet use query parameters, but they are the right next step for filtering and pagination.</p>
+<pre><code>@app.get(<span class="str">"/products"</span>, response_model=list[ProductResponse])
+<span class="kw">def</span> <span class="fn">list_products</span>(
+    category: str | <span class="kw">None</span> = <span class="kw">None</span>,
+    limit: <span class="kw">int</span> = <span class="num">20</span>,
+    offset: <span class="kw">int</span> = <span class="num">0</span>,
+):
+    results = get_all_products()
+    <span class="kw">if</span> category:
+        results = [product <span class="kw">for</span> product <span class="kw">in</span> results <span class="kw">if</span> product.category == category]
+    <span class="kw">return</span> results[offset: offset + limit]
+
+<span class="cm"># GET /products?category=books&limit=10&offset=0</span></code></pre>
+
+  <h3>Request body (POST / PUT / PATCH)</h3>
+<pre><code>@app.post(<span class="str">"/products"</span>, response_model=ProductResponse, status_code=<span class="num">201</span>)
+<span class="kw">def</span> <span class="fn">create_product</span>(payload: ProductCreate):
+    product = save_product(payload)
+    <span class="kw">return</span> product
+
+<span class="cm"># ProductCreate is read from the JSON request body.</span></code></pre>
+
+  <h3>Mixing path, query, and body</h3>
+<pre><code>@app.put(<span class="str">"/products/{product_id}"</span>, response_model=ProductResponse)
+<span class="kw">def</span> <span class="fn">update_product</span>(
+    product_id: <span class="kw">int</span>,              <span class="cm"># path parameter</span>
+    payload: ProductUpdate,           <span class="cm"># request body</span>
+):
+    ...
+
+<span class="cm"># product_id comes from the URL.</span>
+<span class="cm"># payload comes from the JSON body.</span></code></pre>
+
+  <h3>Response model & status codes</h3>
+<pre><code>@app.get(
+    <span class="str">"/products"</span>,
+    response_model=list[ProductResponse],
+    summary=<span class="str">"Get All Employees"</span>,
+)
+<span class="kw">def</span> <span class="fn">list_products</span>():
+    <span class="kw">return</span> get_all_products()
+
+<span class="cm"># response_model validates and documents the output schema.</span></code></pre>
+
+  <h3>Async routes</h3>
+<pre><code><span class="kw">import</span> httpx
+
+@app.get(<span class="str">"/external/"</span>)
+<span class="kw">async def</span> <span class="fn">call_external</span>():
+    <span class="kw">async with</span> httpx.AsyncClient() <span class="kw">as</span> client:
+        r = <span class="kw">await</span> client.get(<span class="str">"https://api.example.com/data"</span>)
+    <span class="kw">return</span> r.json()</code></pre>
+
+  <div class="tip"><p><i class="ti ti-info-circle" aria-hidden="true"></i> Use <code>async def</code> when you have I/O-bound operations (DB, HTTP calls). Use plain <code>def</code> for CPU-bound or synchronous work — FastAPI runs plain functions in a thread pool automatically.</p></div>
+
+  <h3>Routers — organising large apps</h3>
+<pre><code><span class="cm"># routers/products.py</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> APIRouter
+router = APIRouter(prefix=<span class="str">"/products"</span>, tags=[<span class="str">"products"</span>])
+
+@router.get(<span class="str">"/"</span>)
+<span class="kw">def</span> <span class="fn">list_products</span>(): ...
+
+<span class="cm"># main.py</span>
+<span class="kw">from</span> routers <span class="kw">import</span> products
+app.include_router(products.router)</code></pre>
+</div>
+
+<div id="pydantic" class="section">
+  <h2>Pydantic & Data Validation</h2>
+  <p>Pydantic models define the shape and rules for API data. They can validate simple fields, nested objects, enums, lists, dates, computed values, and cross-field rules before your endpoint logic runs.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Validation protects your application boundary. Without validation, invalid data can enter your business logic, database, logs, and downstream systems. Pydantic checks data before your endpoint logic runs, so your route functions can assume the input already matches the declared schema.</p>
+    <p>Serialization is the opposite direction: it controls how Python objects become JSON responses. <code>response_model</code> is important because it prevents accidental fields from leaking and keeps response structure predictable.</p>
+  </div>
+
+  <h3>Validation lifecycle</h3>
+  <table>
+    <thead><tr><th>Step</th><th>What happens</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>1. Client sends JSON</td><td>FastAPI reads the request body.</td><td><code>{"email": "user@example.com"}</code></td></tr>
+      <tr><td>2. Pydantic validates</td><td>Types and field constraints are checked.</td><td><code>EmailStr</code>, <code>StrictInt</code>, <code>Literal</code>, <code>Field</code></td></tr>
+      <tr><td>3. Endpoint runs</td><td>Your function receives a trusted model object.</td><td><code>payload.email</code></td></tr>
+      <tr><td>4. Response model applies</td><td>Output is validated and serialized.</td><td><code>ProductResponse</code> or <code>UserResponse</code></td></tr>
+      <tr><td>5. Client receives JSON</td><td>The response follows the documented schema.</td><td>Status <code>200</code> or validation <code>422</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Pydantic feature map</h3>
+  <table>
+    <thead><tr><th>Feature</th><th>Tool</th><th>Example use</th></tr></thead>
+    <tbody>
+      <tr><td>Required field</td><td><code>Field(...)</code></td><td>Name, email, product title.</td></tr>
+      <tr><td>String length</td><td><code>min_length</code>, <code>max_length</code></td><td>Username length limits.</td></tr>
+      <tr><td>Numeric ranges</td><td><code>gt</code>, <code>ge</code>, <code>lt</code>, <code>le</code></td><td>Age, price, rating, quantity.</td></tr>
+      <tr><td>Email validation</td><td><code>EmailStr</code></td><td>User registration forms.</td></tr>
+      <tr><td>Fixed choices</td><td><code>Literal</code> or <code>Enum</code></td><td>Status, role, department, category.</td></tr>
+      <tr><td>Custom field logic</td><td><code>@field_validator</code></td><td>Normalize names, reject blank strings.</td></tr>
+      <tr><td>Cross-field logic</td><td><code>@model_validator</code></td><td>Discount less than price, date range validity.</td></tr>
+      <tr><td>Derived values</td><td><code>@computed_field</code></td><td>BMI, total price, full name, tax amount.</td></tr>
+      <tr><td>Response examples</td><td><code>json_schema_extra</code></td><td>Better Swagger documentation.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>General model pattern</h3>
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, EmailStr, Field
+<span class="kw">from</span> typing <span class="kw">import</span> Literal
+
+<span class="kw">class</span> <span class="fn">UserCreate</span>(BaseModel):
+    name: str = Field(..., min_length=<span class="num">2</span>, max_length=<span class="num">80</span>)
+    email: EmailStr
+    role: Literal[<span class="str">"admin"</span>, <span class="str">"member"</span>, <span class="str">"viewer"</span>] = <span class="str">"member"</span>
+
+<span class="kw">class</span> <span class="fn">UserResponse</span>(BaseModel):
+    id: <span class="kw">int</span>
+    name: str
+    email: EmailStr
+    role: str</code></pre>
+
+  <h3>Employee model as one case-study example</h3>
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, EmailStr, Field, StrictInt
+<span class="kw">from</span> typing <span class="kw">import</span> Literal, Optional
+
+<span class="kw">class</span> <span class="fn">EmployeeBase</span>(BaseModel):
+    name: str = Field(..., min_length=<span class="num">3</span>, max_length=<span class="num">50</span>)
+    department: Literal[<span class="str">"HR"</span>, <span class="str">"IT"</span>, <span class="str">"Finance"</span>, <span class="str">"Sales"</span>]
+    email: EmailStr
+    age: Optional[StrictInt] = Field(default=<span class="kw">None</span>, gt=<span class="num">0</span>, le=<span class="num">120</span>)
+
+<span class="kw">class</span> <span class="fn">EmployeeCreate</span>(EmployeeBase):
+    id: <span class="kw">int</span> = Field(..., gt=<span class="num">0</span>)
+
+<span class="kw">class</span> <span class="fn">EmployeeUpdate</span>(EmployeeBase):
+    <span class="kw">pass</span>
+
+<span class="kw">class</span> <span class="fn">EmployeeResponse</span>(EmployeeBase):
+    id: <span class="kw">int</span></code></pre>
+
+  <h3>Why the models are separated</h3>
+  <table>
+    <thead><tr><th>Model</th><th>Used by</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td><code>EmployeeBase</code></td><td>Shared parent model</td><td>Prevents repeating common employee fields.</td></tr>
+      <tr><td><code>EmployeeCreate</code></td><td><code>POST /add_employee</code></td><td>Create requests must include a positive employee ID.</td></tr>
+      <tr><td><code>EmployeeUpdate</code></td><td><code>PUT /update_employee/{emp_id}</code></td><td>Update requests take the ID from the URL, not the body.</td></tr>
+      <tr><td><code>EmployeeResponse</code></td><td>API responses</td><td>Responses always include the employee ID.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Field constraints — strings</h3>
+      <table>
+        <thead><tr><th>Constraint</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>min_length</code></td><td><code>Field(..., min_length=3)</code></td></tr>
+          <tr><td><code>max_length</code></td><td><code>Field(..., max_length=50)</code></td></tr>
+          <tr><td><code>pattern</code></td><td><code>Field(..., pattern=r"^\d{5}$")</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Field constraints — numbers</h3>
+      <table>
+        <thead><tr><th>Constraint</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>gt</code></td><td>Greater than</td></tr>
+          <tr><td><code>ge</code></td><td>Greater than or equal</td></tr>
+          <tr><td><code>lt</code></td><td>Less than</td></tr>
+          <tr><td><code>le</code></td><td>Less than or equal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Validation examples</h3>
+<pre><code><span class="cm"># Valid employee</span>
+{
+  <span class="str">"id"</span>: <span class="num">101</span>,
+  <span class="str">"name"</span>: <span class="str">"Santosh Kumar"</span>,
+  <span class="str">"department"</span>: <span class="str">"IT"</span>,
+  <span class="str">"email"</span>: <span class="str">"santosh@company.com"</span>,
+  <span class="str">"age"</span>: <span class="num">33</span>
+}
+
+<span class="cm"># Invalid examples</span>
+{<span class="str">"department"</span>: <span class="str">"Engineering"</span>}  <span class="cm"># not one of the allowed Literal values</span>
+{<span class="str">"email"</span>: <span class="str">"not-an-email"</span>}       <span class="cm"># invalid EmailStr</span>
+{<span class="str">"age"</span>: <span class="str">"33"</span>}                  <span class="cm"># StrictInt rejects string integers</span></code></pre>
+
+  <h3>Computed field example: BMI from height and weight</h3>
+  <p>Pydantic can do more than check fields. It can calculate derived values. For example, if a client sends height and weight, the API can return BMI without asking the client to calculate it.</p>
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field, computed_field, model_validator
+
+<span class="kw">class</span> <span class="fn">HealthProfile</span>(BaseModel):
+    age: <span class="kw">int</span> = Field(..., ge=<span class="num">1</span>, le=<span class="num">120</span>)
+    height_cm: <span class="kw">float</span> = Field(..., gt=<span class="num">30</span>, le=<span class="num">250</span>)
+    weight_kg: <span class="kw">float</span> = Field(..., gt=<span class="num">1</span>, le=<span class="num">400</span>)
+
+    @computed_field
+    @property
+    <span class="kw">def</span> <span class="fn">bmi</span>(self) -> <span class="kw">float</span>:
+        height_m = self.height_cm / <span class="num">100</span>
+        <span class="kw">return</span> round(self.weight_kg / (height_m ** <span class="num">2</span>), <span class="num">2</span>)
+
+    @computed_field
+    @property
+    <span class="kw">def</span> <span class="fn">bmi_category</span>(self) -> str:
+        <span class="kw">if</span> self.bmi &lt; <span class="num">18.5</span>:
+            <span class="kw">return</span> <span class="str">"underweight"</span>
+        <span class="kw">if</span> self.bmi &lt; <span class="num">25</span>:
+            <span class="kw">return</span> <span class="str">"normal"</span>
+        <span class="kw">if</span> self.bmi &lt; <span class="num">30</span>:
+            <span class="kw">return</span> <span class="str">"overweight"</span>
+        <span class="kw">return</span> <span class="str">"obese"</span>
+
+    @model_validator(mode=<span class="str">"after"</span>)
+    <span class="kw">def</span> <span class="fn">check_realistic_child_weight</span>(self):
+        <span class="kw">if</span> self.age &lt; <span class="num">10</span> <span class="kw">and</span> self.weight_kg > <span class="num">120</span>:
+            <span class="kw">raise</span> ValueError(<span class="str">"Weight looks unrealistic for this age"</span>)
+        <span class="kw">return</span> self
+
+@app.post(<span class="str">"/health/bmi"</span>, response_model=HealthProfile)
+<span class="kw">def</span> <span class="fn">calculate_bmi</span>(profile: HealthProfile):
+    <span class="kw">return</span> profile</code></pre>
+
+<pre><code><span class="cm"># Request</span>
+{
+  <span class="str">"age"</span>: <span class="num">30</span>,
+  <span class="str">"height_cm"</span>: <span class="num">175</span>,
+  <span class="str">"weight_kg"</span>: <span class="num">70</span>
+}
+
+<span class="cm"># Response includes computed fields</span>
+{
+  <span class="str">"age"</span>: <span class="num">30</span>,
+  <span class="str">"height_cm"</span>: <span class="num">175</span>,
+  <span class="str">"weight_kg"</span>: <span class="num">70</span>,
+  <span class="str">"bmi"</span>: <span class="num">22.86</span>,
+  <span class="str">"bmi_category"</span>: <span class="str">"normal"</span>
+}</code></pre>
+
+  <h3>Validators</h3>
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> field_validator, model_validator
+
+<span class="kw">class</span> <span class="fn">Product</span>(BaseModel):
+    name: str
+    price: <span class="kw">float</span>
+    discount: <span class="kw">float</span> = <span class="num">0.0</span>
+
+    @field_validator(<span class="str">"name"</span>)
+    <span class="kw">def</span> <span class="fn">name_must_not_be_blank</span>(cls, v):
+        <span class="kw">if not</span> v.strip():
+            <span class="kw">raise</span> ValueError(<span class="str">"Name cannot be blank"</span>)
+        <span class="kw">return</span> v.title()
+
+    @model_validator(mode=<span class="str">"after"</span>)
+    <span class="kw">def</span> <span class="fn">discount_less_than_price</span>(self):
+        <span class="kw">if</span> self.discount >= self.price:
+            <span class="kw">raise</span> ValueError(<span class="str">"Discount must be less than price"</span>)
+        <span class="kw">return</span> self</code></pre>
+
+  <h3>Schema customisation & Swagger examples</h3>
+<pre><code><span class="kw">class</span> <span class="fn">EmployeeResponse</span>(EmployeeBase):
+    id: <span class="kw">int</span>
+
+    model_config = {
+        <span class="str">"json_schema_extra"</span>: {
+            <span class="str">"example"</span>: {
+                <span class="str">"id"</span>: <span class="num">101</span>,
+                <span class="str">"name"</span>: <span class="str">"Santosh Kumar"</span>,
+                <span class="str">"department"</span>: <span class="str">"IT"</span>,
+                <span class="str">"email"</span>: <span class="str">"santosh@company.com"</span>,
+                <span class="str">"age"</span>: <span class="num">33</span>,
+            }
+        }
+    }</code></pre>
+
+  <div class="tip"><p><strong>Study point:</strong> the model classes are not only Python classes. They also power runtime validation and the generated Swagger documentation.</p></div>
+
+  <h3>Validation error response format</h3>
+<pre><code>{
+  <span class="str">"detail"</span>: [
+    {
+      <span class="str">"loc"</span>: [<span class="str">"body"</span>, <span class="str">"department"</span>],
+      <span class="str">"msg"</span>: <span class="str">"Input should be 'HR', 'IT', 'Finance' or 'Sales'"</span>,
+      <span class="str">"type"</span>: <span class="str">"literal_error"</span>
+    }
+  ]
+}</code></pre>
+</div>
+
+<div id="di" class="section">
+  <h2>Dependency Injection</h2>
+  <p>FastAPI's <code>Depends()</code> system lets you declare reusable logic such as database sessions, authentication, configuration, permissions, rate limits, and shared service objects.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Dependency injection separates setup logic from business logic. Instead of every route manually opening a database session, checking authentication, or reading configuration, the route declares what it needs and FastAPI provides it.</p>
+    <p>This keeps endpoints focused. For example, a delete endpoint should focus on deleting a resource, not on parsing tokens, opening database connections, checking roles, or reading settings. Dependencies make those cross-cutting concerns reusable and testable.</p>
+  </div>
+
+  <h3>Database dependency pattern</h3>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> Depends
+<span class="kw">from</span> sqlalchemy.orm <span class="kw">import</span> Session
+
+<span class="kw">def</span> <span class="fn">get_db</span>() -> Session:
+    db = SessionLocal()
+    <span class="kw">try</span>:
+        <span class="kw">yield</span> db
+    <span class="kw">finally</span>:
+        db.close()
+
+@app.get(<span class="str">"/records"</span>, response_model=list[RecordResponse])
+<span class="kw">def</span> <span class="fn">list_records</span>(db: Session = Depends(get_db)):
+    <span class="kw">return</span> db.query(Record).all()</code></pre>
+
+  <h3>Auth dependency for protected routes</h3>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> HTTPException, Security
+<span class="kw">from</span> fastapi.security <span class="kw">import</span> OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="str">"token"</span>)
+
+<span class="kw">def</span> <span class="fn">get_current_user</span>(token: str = Depends(oauth2_scheme)):
+    user = decode_jwt(token)
+    <span class="kw">if not</span> user:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">401</span>, detail=<span class="str">"Invalid token"</span>)
+    <span class="kw">return</span> user
+
+@app.post(<span class="str">"/records"</span>, response_model=RecordResponse)
+<span class="kw">def</span> <span class="fn">create_record</span>(
+    payload: RecordCreate,
+    user = Depends(get_current_user),
+):
+    <span class="cm"># User must be authenticated before creation logic runs.</span>
+    ...</code></pre>
+
+  <h3>Chaining dependencies</h3>
+<pre><code><span class="kw">def</span> <span class="fn">get_admin</span>(user = Depends(get_current_user)):
+    <span class="kw">if</span> user.role != <span class="str">"admin"</span>:
+        <span class="kw">raise</span> HTTPException(<span class="num">403</span>, <span class="str">"Admins only"</span>)
+    <span class="kw">return</span> user
+
+@app.delete(<span class="str">"/records/{record_id}"</span>)
+<span class="kw">def</span> <span class="fn">delete_record</span>(record_id: <span class="kw">int</span>, admin = Depends(get_admin)):
+    ...</code></pre>
+
+  <h3>Router-level dependencies</h3>
+<pre><code><span class="cm"># Apply a dependency to every route in a router</span>
+router = APIRouter(
+    prefix=<span class="str">"/admin"</span>,
+    tags=[<span class="str">"admin"</span>],
+    dependencies=[Depends(get_admin)]
+)</code></pre>
+
+  <div class="tip"><p><i class="ti ti-info-circle" aria-hidden="true"></i> Use <code>yield</code> in a dependency to get setup/teardown behaviour (like a context manager). Code before <code>yield</code> runs before the request; code after runs after the response is sent.</p></div>
+
+  <h3>Caching — <code>use_cache</code></h3>
+<pre><code><span class="cm"># By default, the same dependency called multiple times in one request</span>
+<span class="cm"># is only executed ONCE (result is cached per request).</span>
+<span class="cm"># To disable this:</span>
+Depends(get_db, use_cache=<span class="kw">False</span>)</code></pre>
+</div>
+
+<div id="errors" class="section">
+  <h2>Error Handling</h2>
+  <p>FastAPI provides several layers of error handling. Pydantic handles invalid request bodies automatically, while your application code should handle business-rule errors and missing resources intentionally.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Error handling is part of API design, not an afterthought. A good API tells the client whether the request failed because of invalid input, missing data, missing authentication, insufficient permission, or a server-side bug.</p>
+    <p>Use <code>4xx</code> errors when the client can fix the request. Use <code>5xx</code> errors when the server failed unexpectedly. Common examples are <code>400</code> for a business-rule violation, <code>404</code> for a missing resource, and <code>422</code> for validation failure.</p>
+  </div>
+
+  <h3>Business-rule error: 400 Bad Request</h3>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> HTTPException
+
+@app.post(<span class="str">"/products"</span>, response_model=ProductResponse)
+<span class="kw">def</span> <span class="fn">create_product</span>(payload: ProductCreate):
+    <span class="kw">if</span> product_sku_exists(payload.sku):
+        <span class="kw">raise</span> HTTPException(
+            status_code=<span class="num">400</span>,
+            detail=<span class="str">"Product SKU already exists"</span>,
+        )
+    ...</code></pre>
+
+  <h3>Missing resource: 404 Not Found</h3>
+<pre><code>@app.get(<span class="str">"/products/{product_id}"</span>, response_model=ProductResponse)
+<span class="kw">def</span> <span class="fn">get_product</span>(product_id: <span class="kw">int</span>):
+    product = find_product(product_id)
+    <span class="kw">if not</span> product:
+        <span class="kw">raise</span> HTTPException(
+            status_code=<span class="num">404</span>,
+            detail=<span class="str">"Product not found"</span>,
+        )
+
+    <span class="kw">return</span> product</code></pre>
+
+  <h3>Validation error: 422 Unprocessable Entity</h3>
+<pre><code><span class="cm"># Request body with invalid enum value</span>
+{
+  <span class="str">"name"</span>: <span class="str">"Laptop"</span>,
+  <span class="str">"status"</span>: <span class="str">"unknown"</span>,
+  <span class="str">"price"</span>: <span class="num">999.99</span>
+}
+
+<span class="cm"># FastAPI returns 422 before your endpoint logic runs.</span></code></pre>
+
+  <h3>Error map</h3>
+  <table>
+    <thead><tr><th>Case</th><th>Status</th><th>Handled by</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Duplicate ID, SKU, username, or email</td><td><code>400</code></td><td>Your code</td><td>The JSON is valid, but the business rule fails.</td></tr>
+      <tr><td>Resource not found</td><td><code>404</code></td><td>Your code</td><td>The requested resource does not exist.</td></tr>
+      <tr><td>Invalid path parameter</td><td><code>422</code></td><td>FastAPI</td><td>A path value has the wrong type.</td></tr>
+      <tr><td>Invalid email, range, enum, or body shape</td><td><code>422</code></td><td>Pydantic</td><td>The request body fails schema validation.</td></tr>
+      <tr><td>Unexpected bug</td><td><code>500</code></td><td>Server</td><td>Unhandled exception in application code.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Custom exception class + handler</h3>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> Request
+<span class="kw">from</span> fastapi.responses <span class="kw">import</span> JSONResponse
+
+<span class="kw">class</span> <span class="fn">ResourceNotFoundError</span>(Exception):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, resource: str, resource_id: <span class="kw">int</span>):
+        self.resource = resource
+        self.resource_id = resource_id
+
+@app.exception_handler(ResourceNotFoundError)
+<span class="kw">async def</span> <span class="fn">handle_not_found</span>(request: Request, exc: ResourceNotFoundError):
+    <span class="kw">return</span> JSONResponse(
+        status_code=<span class="num">404</span>,
+        content={<span class="str">"detail"</span>: f<span class="str">"{exc.resource} {exc.resource_id} not found"</span>},
+    )</code></pre>
+
+  <h3>Override default validation error handler</h3>
+<pre><code><span class="kw">from</span> fastapi.exceptions <span class="kw">import</span> RequestValidationError
+
+@app.exception_handler(RequestValidationError)
+<span class="kw">async def</span> <span class="fn">validation_exception_handler</span>(request: Request, exc: RequestValidationError):
+    <span class="kw">return</span> JSONResponse(
+        status_code=<span class="num">422</span>,
+        content={<span class="str">"message"</span>: <span class="str">"Request validation failed"</span>, <span class="str">"errors"</span>: exc.errors()},
+    )</code></pre>
+
+  <h3>Common HTTP status codes</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Meaning</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>200</code></td><td>OK</td><td>Read, update, or delete succeeded.</td></tr>
+      <tr><td><code>201</code></td><td>Created</td><td>A resource was created successfully.</td></tr>
+      <tr><td><code>204</code></td><td>No content</td><td>Optional style for successful delete with no response body.</td></tr>
+      <tr><td><code>400</code></td><td>Bad request</td><td>Duplicate ID, bad business rule, or unsupported action.</td></tr>
+      <tr><td><code>401</code></td><td>Unauthorised</td><td>Missing or invalid token after auth is added.</td></tr>
+      <tr><td><code>403</code></td><td>Forbidden</td><td>User is authenticated but lacks permission.</td></tr>
+      <tr><td><code>404</code></td><td>Not found</td><td>Resource ID does not exist.</td></tr>
+      <tr><td><code>422</code></td><td>Unprocessable</td><td>Invalid body, query, or path parameter.</td></tr>
+      <tr><td><code>500</code></td><td>Server error</td><td>Unhandled exception in your code.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn"><p><strong>Production rule:</strong> return useful client errors, but log internal stack traces server-side. Do not expose raw tracebacks to API users.</p></div>
+</div>
+
+<div id="advanced" class="section">
+  <h2>Advanced Topics</h2>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Advanced FastAPI features solve problems that appear when the API grows: frontend access, request tracing, file uploads, real-time updates, long-running side effects, database persistence, and deployment. You should add these features only when the project actually needs them.</p>
+    <p>A sensible progression for most APIs is: add database persistence, add authentication for write operations, add tests, add CORS for a frontend, then add background tasks, file uploads, or WebSockets only if the product needs them.</p>
+  </div>
+
+  <h3>Middleware</h3>
+  <p>Middleware wraps every request and response. It is useful for request logging, timing, trace IDs, rate limiting, compression, or adding security headers.</p>
+<pre><code><span class="kw">from</span> starlette.middleware.base <span class="kw">import</span> BaseHTTPMiddleware
+<span class="kw">import</span> time
+
+<span class="kw">class</span> <span class="fn">TimingMiddleware</span>(BaseHTTPMiddleware):
+    <span class="kw">async def</span> <span class="fn">dispatch</span>(self, request, call_next):
+        start = time.time()
+        response = <span class="kw">await</span> call_next(request)
+        response.headers[<span class="str">"X-Process-Time"</span>] = str(time.time() - start)
+        <span class="kw">return</span> response
+
+app.add_middleware(TimingMiddleware)</code></pre>
+
+  <h3>CORS for frontend apps</h3>
+<pre><code><span class="kw">from</span> fastapi.middleware.cors <span class="kw">import</span> CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[<span class="str">"http://localhost:3000"</span>, <span class="str">"https://app.example.com"</span>],
+    allow_credentials=<span class="kw">True</span>,
+    allow_methods=[<span class="str">"GET"</span>, <span class="str">"POST"</span>, <span class="str">"PUT"</span>, <span class="str">"DELETE"</span>],
+    allow_headers=[<span class="str">"*"</span>],
+)</code></pre>
+
+  <h3>Background tasks</h3>
+  <p>Use background tasks for work that should happen after the API response, such as sending emails, writing audit logs, calling webhooks, or refreshing cached data.</p>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> BackgroundTasks
+
+<span class="kw">def</span> <span class="fn">send_confirmation_email</span>(email: str):
+    print(f<span class="str">"Sending confirmation email to {email}"</span>)
+
+@app.post(<span class="str">"/signup"</span>)
+<span class="kw">def</span> <span class="fn">signup</span>(payload: UserCreate, bg: BackgroundTasks):
+    user = create_user(payload)
+    bg.add_task(send_confirmation_email, user.email)
+    <span class="kw">return</span> user</code></pre>
+
+  <h3>WebSockets for real-time features</h3>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> WebSocket
+
+@app.websocket(<span class="str">"/ws/notifications"</span>)
+<span class="kw">async def</span> <span class="fn">notifications</span>(ws: WebSocket):
+    <span class="kw">await</span> ws.accept()
+    <span class="kw">await</span> ws.send_json({<span class="str">"event"</span>: <span class="str">"connected"</span>})</code></pre>
+
+  <h3>File uploads</h3>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> UploadFile, File
+
+@app.post(<span class="str">"/files"</span>)
+<span class="kw">async def</span> <span class="fn">upload_file</span>(file: UploadFile = File(...)):
+    content = <span class="kw">await</span> file.read()
+    <span class="kw">return</span> {<span class="str">"filename"</span>: file.filename, <span class="str">"content_type"</span>: file.content_type, <span class="str">"size"</span>: len(content)}</code></pre>
+
+  <h3>Database with SQLAlchemy</h3>
+<pre><code><span class="kw">from</span> sqlalchemy <span class="kw">import</span> create_engine, Column, Integer, String
+<span class="kw">from</span> sqlalchemy.orm <span class="kw">import</span> DeclarativeBase, Session
+
+DATABASE_URL = <span class="str">"sqlite:///./app.db"</span>
+engine = create_engine(DATABASE_URL, connect_args={<span class="str">"check_same_thread"</span>: <span class="kw">False</span>})
+
+<span class="kw">class</span> <span class="fn">Base</span>(DeclarativeBase): pass
+
+<span class="kw">class</span> <span class="fn">Item</span>(Base):
+    __tablename__ = <span class="str">"items"</span>
+    id = Column(Integer, primary_key=<span class="kw">True</span>, index=<span class="kw">True</span>)
+    name = Column(String(<span class="num">50</span>), nullable=<span class="kw">False</span>)
+    category = Column(String(<span class="num">40</span>), nullable=<span class="kw">False</span>)
+
+Base.metadata.create_all(bind=engine)</code></pre>
+
+  <h3>Testing</h3>
+<pre><code><span class="kw">from</span> fastapi.testclient <span class="kw">import</span> TestClient
+<span class="kw">from</span> main <span class="kw">import</span> app
+
+client = TestClient(app)
+
+<span class="kw">def</span> <span class="fn">test_home</span>():
+    response = client.get(<span class="str">"/"</span>)
+    assert response.status_code == <span class="num">200</span>
+    assert <span class="str">"message"</span> <span class="kw">in</span> response.json()
+
+<span class="kw">def</span> <span class="fn">test_validation_error</span>():
+    response = client.post(<span class="str">"/users"</span>, json={<span class="str">"email"</span>: <span class="str">"bad-email"</span>})
+    assert response.status_code == <span class="num">422</span></code></pre>
+
+  <h3>Production deployment</h3>
+<pre><code><span class="cm"># Local production-style run</span>
+uvicorn main:app --host 0.0.0.0 --port 8000
+
+<span class="cm"># Gunicorn + Uvicorn workers</span>
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+
+<span class="cm"># Docker base should match this project</span>
+FROM python:3.12-slim</code></pre>
+</div>
+
+<div id="project" class="section">
+  <h2>Case Study: Employee CRUD API</h2>
+  <p>This repository is one practical CRUD example. Use it as a case study after learning the general FastAPI patterns from the earlier sections.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>A CRUD API models the lifecycle of a resource. The resource here is an employee. Create adds a new employee, Read fetches employees, Update changes an existing employee, and Delete removes one. Most business APIs are built from this same pattern.</p>
+    <p>The current implementation is intentionally simple: it uses an in-memory list so you can focus on routing, validation, and errors first. Once those concepts are clear, the same API contract can be backed by a real database.</p>
+  </div>
+
+  <div class="callout-grid">
+    <div class="card">
+      <div class="mini-title">Application file</div>
+      <p><code>main.py</code> creates the FastAPI app, registers routes, stores employees in memory, and raises HTTP errors.</p>
+    </div>
+    <div class="card">
+      <div class="mini-title">Schema file</div>
+      <p><code>model.py</code> defines Pydantic models for create, update, and response validation.</p>
+    </div>
+    <div class="card">
+      <div class="mini-title">Storage style</div>
+      <p><code>employees_db</code> is a Python list. It is simple for learning, but data disappears when the server restarts.</p>
+    </div>
+  </div>
+
+  <h3>Project architecture</h3>
+<pre><code>FastAPI/
+├── main.py              <span class="cm"># API routes and in-memory CRUD logic</span>
+├── model.py             <span class="cm"># Pydantic request/response schemas</span>
+├── requirements.txt     <span class="cm"># Runtime dependencies</span>
+├── pyproject.toml       <span class="cm"># Project metadata and dependencies</span>
+├── Tutorial.ipynb       <span class="cm"># Notebook study notes</span>
+└── docs/index.html      <span class="cm"># GitHub Pages study guide</span></code></pre>
+
+  <h3>API contract</h3>
+  <table>
+    <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th><th>Model</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-get">GET</span></td><td><code>/</code></td><td>Welcome message</td><td>Dictionary response</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td><code>/about</code></td><td>Project description</td><td>Dictionary response</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td><code>/add_employee</code></td><td>Create employee</td><td><code>EmployeeCreate</code> in, <code>EmployeeResponse</code> out</td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td><code>/employees</code></td><td>List employees</td><td><code>list[EmployeeResponse]</code></td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td><code>/employee/{emp_id}</code></td><td>Read one employee</td><td><code>EmployeeResponse</code></td></tr>
+      <tr><td><span class="badge badge-put">PUT</span></td><td><code>/update_employee/{emp_id}</code></td><td>Full update</td><td><code>EmployeeUpdate</code> in, <code>EmployeeResponse</code> out</td></tr>
+      <tr><td><span class="badge badge-delete">DELETE</span></td><td><code>/remove_employee/{emp_id}</code></td><td>Delete employee</td><td>Message response</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Employee model explained</h3>
+<pre><code><span class="kw">class</span> <span class="fn">EmployeeBase</span>(BaseModel):
+    name: str = Field(..., min_length=<span class="num">3</span>, max_length=<span class="num">50</span>)
+    department: Literal[<span class="str">"HR"</span>, <span class="str">"IT"</span>, <span class="str">"Finance"</span>, <span class="str">"Sales"</span>]
+    email: EmailStr
+    age: Optional[StrictInt] = Field(default=<span class="kw">None</span>, gt=<span class="num">0</span>, le=<span class="num">120</span>)</code></pre>
+
+  <table>
+    <thead><tr><th>Field</th><th>Rule</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td>3 to 50 characters</td><td>Prevents empty or unrealistic names.</td></tr>
+      <tr><td><code>department</code></td><td>Only HR, IT, Finance, Sales</td><td>Creates a controlled set of values.</td></tr>
+      <tr><td><code>email</code></td><td>Valid email format</td><td>Requires <code>email-validator</code>.</td></tr>
+      <tr><td><code>age</code></td><td>Optional strict integer, 1 to 120</td><td>Rejects strings like <code>"33"</code> and invalid ranges.</td></tr>
+      <tr><td><code>id</code></td><td>Positive integer</td><td>Used as the employee identifier.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Create employee request</h3>
+<pre><code>curl -X POST http://127.0.0.1:8000/add_employee \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="str">"id"</span>: <span class="num">101</span>,
+    <span class="str">"name"</span>: <span class="str">"Santosh Kumar"</span>,
+    <span class="str">"department"</span>: <span class="str">"IT"</span>,
+    <span class="str">"email"</span>: <span class="str">"santosh@company.com"</span>,
+    <span class="str">"age"</span>: <span class="num">33</span>
+  }'</code></pre>
+
+  <h3>Common responses</h3>
+<pre><code><span class="cm"># Success: 200 OK</span>
+{
+  <span class="str">"id"</span>: <span class="num">101</span>,
+  <span class="str">"name"</span>: <span class="str">"Santosh Kumar"</span>,
+  <span class="str">"department"</span>: <span class="str">"IT"</span>,
+  <span class="str">"email"</span>: <span class="str">"santosh@company.com"</span>,
+  <span class="str">"age"</span>: <span class="num">33</span>
+}
+
+<span class="cm"># Duplicate ID: 400 Bad Request</span>
+{
+  <span class="str">"detail"</span>: <span class="str">"Employee with EmployeeID 101 already exists"</span>
+}
+
+<span class="cm"># Missing employee: 404 Not Found</span>
+{
+  <span class="str">"detail"</span>: <span class="str">"Employee not found"</span>
+}
+
+<span class="cm"># Invalid email or department: 422 Unprocessable Entity</span>
+{
+  <span class="str">"detail"</span>: [...]
+}</code></pre>
+
+  <div class="tip"><p><strong>Study point:</strong> this project shows the core FastAPI pattern: route decorator, typed function parameters, Pydantic model, business rule check, response model, and HTTP error.</p></div>
+</div>
+
+<div id="database" class="section">
+  <h2>Database Upgrade: From List To SQLite</h2>
+  <p>Learning APIs often start with an in-memory list. That is useful for route practice, but real APIs need persistence, constraints, relationships, transactions, and query performance. SQLite is the easiest next step before PostgreSQL or MySQL.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>A database is responsible for durable storage, constraints, indexing, and safe querying. In-memory lists are process-local and temporary; databases are designed to keep data consistent across requests and restarts.</p>
+    <p>When you add SQLAlchemy, remember the separation of responsibilities: SQLAlchemy models describe tables, Pydantic models describe API data, and CRUD functions translate between HTTP requests and database operations.</p>
+  </div>
+
+  <h3>Why replace the list?</h3>
+  <ul class="study-list">
+    <li>Data survives server restarts.</li>
+    <li>IDs, emails, usernames, slugs, or SKUs can be unique at the database level.</li>
+    <li>Queries can filter, sort, and paginate efficiently.</li>
+    <li>The API becomes closer to real production design.</li>
+  </ul>
+
+  <h3>Install database dependencies</h3>
+<pre><code>pip install sqlalchemy</code></pre>
+
+  <h3>Database model</h3>
+<pre><code><span class="kw">from</span> sqlalchemy <span class="kw">import</span> create_engine, Column, Integer, String
+<span class="kw">from</span> sqlalchemy.orm <span class="kw">import</span> DeclarativeBase, sessionmaker
+
+DATABASE_URL = <span class="str">"sqlite:///./app.db"</span>
+engine = create_engine(DATABASE_URL, connect_args={<span class="str">"check_same_thread"</span>: <span class="kw">False</span>})
+SessionLocal = sessionmaker(bind=engine, autoflush=<span class="kw">False</span>, autocommit=<span class="kw">False</span>)
+
+<span class="kw">class</span> <span class="fn">Base</span>(DeclarativeBase):
+    <span class="kw">pass</span>
+
+<span class="kw">class</span> <span class="fn">Product</span>(Base):
+    __tablename__ = <span class="str">"products"</span>
+
+    id = Column(Integer, primary_key=<span class="kw">True</span>, index=<span class="kw">True</span>)
+    name = Column(String(<span class="num">80</span>), nullable=<span class="kw">False</span>)
+    sku = Column(String(<span class="num">40</span>), unique=<span class="kw">True</span>, nullable=<span class="kw">False</span>, index=<span class="kw">True</span>)
+    category = Column(String(<span class="num">40</span>), nullable=<span class="kw">False</span>)
+
+Base.metadata.create_all(bind=engine)</code></pre>
+
+  <h3>Database dependency</h3>
+<pre><code><span class="kw">from</span> typing <span class="kw">import</span> Generator
+
+<span class="kw">def</span> <span class="fn">get_db</span>() -> Generator:
+    db = SessionLocal()
+    <span class="kw">try</span>:
+        <span class="kw">yield</span> db
+    <span class="kw">finally</span>:
+        db.close()</code></pre>
+
+  <h3>Create with database session</h3>
+<pre><code><span class="kw">from</span> fastapi <span class="kw">import</span> Depends, HTTPException
+<span class="kw">from</span> sqlalchemy.orm <span class="kw">import</span> Session
+
+@app.post(<span class="str">"/products"</span>, response_model=ProductResponse, status_code=<span class="num">201</span>)
+<span class="kw">def</span> <span class="fn">create_product</span>(payload: ProductCreate, db: Session = Depends(get_db)):
+    existing = db.get(Product, payload.id)
+    <span class="kw">if</span> existing:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">400</span>, detail=<span class="str">"Product ID already exists"</span>)
+
+    product = Product(**payload.model_dump())
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    <span class="kw">return</span> product</code></pre>
+
+  <h3>Read with pagination</h3>
+<pre><code>@app.get(<span class="str">"/products"</span>, response_model=list[ProductResponse])
+<span class="kw">def</span> <span class="fn">list_products</span>(
+    offset: <span class="kw">int</span> = <span class="num">0</span>,
+    limit: <span class="kw">int</span> = <span class="num">20</span>,
+    db: Session = Depends(get_db),
+):
+    <span class="kw">return</span> db.query(Product).offset(offset).limit(limit).all()</code></pre>
+
+  <div class="warn"><p><strong>Important:</strong> API schemas and database models are different responsibilities. Pydantic schemas validate external data; SQLAlchemy models represent database tables.</p></div>
+</div>
+
+<div id="auth" class="section">
+  <h2>Authentication And Authorization</h2>
+  <p>Authentication answers "Who are you?" Authorization answers "What are you allowed to do?" FastAPI supports standard security patterns through dependencies.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Authentication protects identity. Authorization protects actions. A user may be signed in but still not allowed to delete records, approve payments, view private data, or access admin screens.</p>
+    <p>JWT-based auth works well for APIs because the client can send a bearer token with every request. The server verifies the token, extracts the user identity and role, and lets dependencies decide whether the endpoint should run.</p>
+  </div>
+
+  <h3>Typical JWT flow</h3>
+  <div class="checklist">
+    <div class="check-item"><span>1</span><div>User sends username and password to <code>/token</code>.</div></div>
+    <div class="check-item"><span>2</span><div>Server verifies password hash.</div></div>
+    <div class="check-item"><span>3</span><div>Server returns a signed JWT access token.</div></div>
+    <div class="check-item"><span>4</span><div>Client sends <code>Authorization: Bearer &lt;token&gt;</code> on protected requests.</div></div>
+    <div class="check-item"><span>5</span><div>FastAPI dependency validates the token before running the endpoint.</div></div>
+  </div>
+
+  <h3>Install auth dependencies</h3>
+<pre><code>pip install python-jose[cryptography] passlib[bcrypt] python-multipart</code></pre>
+
+  <h3>Password hashing</h3>
+<pre><code><span class="kw">from</span> passlib.context <span class="kw">import</span> CryptContext
+
+pwd_context = CryptContext(schemes=[<span class="str">"bcrypt"</span>], deprecated=<span class="str">"auto"</span>)
+
+<span class="kw">def</span> <span class="fn">hash_password</span>(password: str) -> str:
+    <span class="kw">return</span> pwd_context.hash(password)
+
+<span class="kw">def</span> <span class="fn">verify_password</span>(plain_password: str, hashed_password: str) -> <span class="kw">bool</span>:
+    <span class="kw">return</span> pwd_context.verify(plain_password, hashed_password)</code></pre>
+
+  <h3>OAuth2 bearer token dependency</h3>
+<pre><code><span class="kw">from</span> fastapi.security <span class="kw">import</span> OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=<span class="str">"token"</span>)
+
+<span class="kw">def</span> <span class="fn">get_current_user</span>(token: str = Depends(oauth2_scheme)):
+    payload = decode_access_token(token)
+    <span class="kw">if not</span> payload:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">401</span>, detail=<span class="str">"Invalid token"</span>)
+    <span class="kw">return</span> payload</code></pre>
+
+  <h3>Protect write routes</h3>
+<pre><code>@app.post(<span class="str">"/records"</span>, response_model=RecordResponse)
+<span class="kw">def</span> <span class="fn">create_record</span>(
+    payload: RecordCreate,
+    current_user = Depends(get_current_user),
+):
+    <span class="cm"># Only authenticated users can create records.</span>
+    ...</code></pre>
+
+  <h3>Role-based authorization</h3>
+<pre><code><span class="kw">def</span> <span class="fn">require_admin</span>(user = Depends(get_current_user)):
+    <span class="kw">if</span> user.get(<span class="str">"role"</span>) != <span class="str">"admin"</span>:
+        <span class="kw">raise</span> HTTPException(status_code=<span class="num">403</span>, detail=<span class="str">"Admin access required"</span>)
+    <span class="kw">return</span> user
+
+@app.delete(<span class="str">"/records/{record_id}"</span>)
+<span class="kw">def</span> <span class="fn">delete_record</span>(record_id: <span class="kw">int</span>, admin = Depends(require_admin)):
+    ...</code></pre>
+
+  <div class="tip"><p><strong>Study point:</strong> authentication belongs in dependencies because it is reusable and runs before endpoint business logic.</p></div>
+</div>
+
+<div id="testing" class="section">
+  <h2>Testing FastAPI Properly</h2>
+  <p>Testing proves that your API contract works. A complete test suite checks successful requests, validation errors, business-rule errors, authentication errors, and edge cases.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>API tests should verify behavior, not implementation details. A test should send a request, inspect the status code, and check the JSON response. This gives confidence that clients can use the API correctly.</p>
+    <p>Good test coverage includes the happy path and failure paths. Duplicate IDs, invalid enum values, invalid emails, missing records, update errors, delete errors, and auth failures are just as important as successful creation.</p>
+  </div>
+
+  <h3>Install test dependency</h3>
+<pre><code>pip install pytest</code></pre>
+
+  <h3>Basic test setup</h3>
+<pre><code><span class="kw">from</span> fastapi.testclient <span class="kw">import</span> TestClient
+<span class="kw">from</span> main <span class="kw">import</span> app
+
+client = TestClient(app)
+
+<span class="kw">def</span> <span class="fn">setup_function</span>():
+    reset_test_database()</code></pre>
+
+  <h3>Test create and read</h3>
+<pre><code><span class="kw">def</span> <span class="fn">test_create_and_get_product</span>():
+    payload = {
+        <span class="str">"id"</span>: <span class="num">101</span>,
+        <span class="str">"name"</span>: <span class="str">"Mechanical Keyboard"</span>,
+        <span class="str">"sku"</span>: <span class="str">"KB-001"</span>,
+        <span class="str">"category"</span>: <span class="str">"accessories"</span>,
+        <span class="str">"price"</span>: <span class="num">89.99</span>,
+    }
+
+    create_response = client.post(<span class="str">"/products"</span>, json=payload)
+    assert create_response.status_code == <span class="num">201</span>
+    assert create_response.json()[<span class="str">"id"</span>] == <span class="num">101</span>
+
+    get_response = client.get(<span class="str">"/products/101"</span>)
+    assert get_response.status_code == <span class="num">200</span>
+    assert get_response.json()[<span class="str">"sku"</span>] == <span class="str">"KB-001"</span></code></pre>
+
+  <h3>Test duplicate resource</h3>
+<pre><code><span class="kw">def</span> <span class="fn">test_duplicate_product_id_returns_400</span>():
+    payload = {
+        <span class="str">"id"</span>: <span class="num">101</span>,
+        <span class="str">"name"</span>: <span class="str">"Mechanical Keyboard"</span>,
+        <span class="str">"sku"</span>: <span class="str">"KB-001"</span>,
+        <span class="str">"category"</span>: <span class="str">"accessories"</span>,
+        <span class="str">"price"</span>: <span class="num">89.99</span>,
+    }
+
+    assert client.post(<span class="str">"/products"</span>, json=payload).status_code == <span class="num">201</span>
+    response = client.post(<span class="str">"/products"</span>, json=payload)
+
+    assert response.status_code == <span class="num">400</span>
+    assert <span class="str">"already exists"</span> <span class="kw">in</span> response.json()[<span class="str">"detail"</span>]</code></pre>
+
+  <h3>Test validation error</h3>
+<pre><code><span class="kw">def</span> <span class="fn">test_invalid_price_returns_422</span>():
+    payload = {
+        <span class="str">"id"</span>: <span class="num">101</span>,
+        <span class="str">"name"</span>: <span class="str">"Mechanical Keyboard"</span>,
+        <span class="str">"sku"</span>: <span class="str">"KB-001"</span>,
+        <span class="str">"category"</span>: <span class="str">"accessories"</span>,
+        <span class="str">"price"</span>: <span class="num">-1</span>,
+    }
+
+    response = client.post(<span class="str">"/products"</span>, json=payload)
+    assert response.status_code == <span class="num">422</span></code></pre>
+
+  <h3>Test matrix</h3>
+  <table>
+    <thead><tr><th>Scenario</th><th>Expected status</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Create valid record</td><td><code>201</code></td><td>Payload passes validation and business rules.</td></tr>
+      <tr><td>Create duplicate ID</td><td><code>400</code></td><td>Business rule violation.</td></tr>
+      <tr><td>Invalid enum value</td><td><code>422</code></td><td><code>Literal</code> or <code>Enum</code> validation failure.</td></tr>
+      <tr><td>Invalid email or numeric range</td><td><code>422</code></td><td>Pydantic validation failure.</td></tr>
+      <tr><td>Get missing record</td><td><code>404</code></td><td>Resource does not exist.</td></tr>
+      <tr><td>Update existing record</td><td><code>200</code></td><td>Record is found and replaced.</td></tr>
+      <tr><td>Delete missing record</td><td><code>404</code></td><td>Resource does not exist.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="production" class="section">
+  <h2>Production Readiness</h2>
+  <p>Production is not just "run the server." A production API needs configuration, logging, persistence, security, tests, and a repeatable deployment process.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Production readiness means the API can run reliably outside your laptop. It should recover from restarts, keep secrets out of code, log useful information, reject unsafe requests, and be deployed the same way every time.</p>
+    <p>The usual production priorities are persistent storage, authentication, environment configuration, automated tests, structured logging, observability, and a deployment target such as Docker, Render, Railway, AWS, or another platform.</p>
+  </div>
+
+  <h3>Environment configuration</h3>
+<pre><code><span class="cm"># .env</span>
+APP_NAME=<span class="str">"My FastAPI Service"</span>
+DATABASE_URL=<span class="str">"sqlite:///./app.db"</span>
+SECRET_KEY=<span class="str">"change-this-secret"</span>
+ENVIRONMENT=<span class="str">"development"</span></code></pre>
+
+<pre><code><span class="kw">from</span> pydantic_settings <span class="kw">import</span> BaseSettings
+
+<span class="kw">class</span> <span class="fn">Settings</span>(BaseSettings):
+    app_name: str = <span class="str">"My FastAPI Service"</span>
+    database_url: str
+    secret_key: str
+    environment: str = <span class="str">"development"</span>
+
+    model_config = {<span class="str">"env_file"</span>: <span class="str">".env"</span>}
+
+settings = Settings()</code></pre>
+
+  <h3>Logging</h3>
+<pre><code><span class="kw">import</span> logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@app.post(<span class="str">"/records"</span>)
+<span class="kw">def</span> <span class="fn">create_record</span>(payload: RecordCreate):
+    logger.info(<span class="str">"Creating record"</span>)
+    ...</code></pre>
+
+  <h3>Dockerfile</h3>
+<pre><code>FROM python:3.12-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+EXPOSE 8000
+
+CMD [<span class="str">"uvicorn"</span>, <span class="str">"main:app"</span>, <span class="str">"--host"</span>, <span class="str">"0.0.0.0"</span>, <span class="str">"--port"</span>, <span class="str">"8000"</span>]</code></pre>
+
+  <h3>Production checklist</h3>
+  <div class="checklist">
+    <div class="check-item"><span>✓</span><div>Use a database instead of in-memory storage.</div></div>
+    <div class="check-item"><span>✓</span><div>Keep secrets in environment variables, never in Git.</div></div>
+    <div class="check-item"><span>✓</span><div>Add automated tests for success, validation, and error cases.</div></div>
+    <div class="check-item"><span>✓</span><div>Restrict CORS to trusted frontend domains.</div></div>
+    <div class="check-item"><span>✓</span><div>Use authentication for create, update, and delete operations.</div></div>
+    <div class="check-item"><span>✓</span><div>Add pagination to list endpoints.</div></div>
+    <div class="check-item"><span>✓</span><div>Add logging and monitor server errors.</div></div>
+    <div class="check-item"><span>✓</span><div>Run behind a process manager or container platform.</div></div>
+  </div>
+
+  <div class="warn"><p><strong>Security note:</strong> do not deploy Swagger docs publicly for sensitive APIs unless access is protected.</p></div>
+</div>
+
+<div id="interview" class="section">
+  <h2>Interview And Revision Notes</h2>
+  <p>Use this section for structured revision from basic to advanced. A strong answer should define the concept, explain why it matters, give a practical example, and mention a production consideration.</p>
+
+  <div class="theory-box">
+    <h3>Answer framework</h3>
+    <p>For interviews, do not only give definitions. Connect the concept to API behavior: request parsing, validation, business logic, response serialization, error handling, persistence, testing, and deployment.</p>
+    <p>A good answer format is: <strong>definition -> reason -> example -> production note</strong>. Example: Pydantic validates incoming JSON, prevents bad data from entering business logic, can calculate BMI using computed fields, and should be paired with response models to avoid leaking private fields.</p>
+  </div>
+
+  <h3>Basic level</h3>
+  <table>
+    <thead><tr><th>Question</th><th>Strong answer</th></tr></thead>
+    <tbody>
+      <tr><td>What is FastAPI?</td><td>A Python ASGI framework for building APIs. It uses Starlette for web handling and Pydantic for validation, serialization, and OpenAPI schema generation.</td></tr>
+      <tr><td>Why is FastAPI popular?</td><td>It is fast, type-hint driven, easy to write, supports async, validates data automatically, and generates Swagger/ReDoc documentation without extra setup.</td></tr>
+      <tr><td>What is an endpoint?</td><td>An endpoint is a URL plus HTTP method mapped to a function, such as <code>GET /products/{product_id}</code>.</td></tr>
+      <tr><td>What are path parameters?</td><td>Values embedded in the URL path, usually used to identify a resource, such as <code>product_id</code> in <code>/products/{product_id}</code>.</td></tr>
+      <tr><td>What are query parameters?</td><td>Values after <code>?</code> in the URL, usually used for filtering, sorting, searching, and pagination, such as <code>?limit=20</code>.</td></tr>
+      <tr><td>What is a request body?</td><td>Structured data sent by the client, usually JSON, commonly used with <code>POST</code>, <code>PUT</code>, and <code>PATCH</code>.</td></tr>
+      <tr><td>What is Pydantic?</td><td>A data validation and serialization library. FastAPI uses it to validate request bodies and shape responses.</td></tr>
+      <tr><td>What is Uvicorn?</td><td>An ASGI server that runs FastAPI applications. In development, you commonly run <code>uvicorn main:app --reload</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Intermediate level</h3>
+  <table>
+    <thead><tr><th>Question</th><th>Strong answer</th></tr></thead>
+    <tbody>
+      <tr><td>What is <code>response_model</code>?</td><td>It validates and serializes outgoing responses, documents the response schema, and prevents accidental extra fields from being returned.</td></tr>
+      <tr><td>Why does FastAPI return <code>422</code>?</td><td>The request was syntactically understood, but validation failed. Examples include invalid email, wrong type, missing required field, or invalid enum value.</td></tr>
+      <tr><td>What is dependency injection?</td><td>A way to declare reusable dependencies such as DB sessions, auth, settings, or permissions using <code>Depends()</code>. FastAPI resolves them before calling the endpoint.</td></tr>
+      <tr><td>What is the difference between <code>PUT</code> and <code>PATCH</code>?</td><td><code>PUT</code> usually replaces a full resource, while <code>PATCH</code> partially updates only provided fields.</td></tr>
+      <tr><td>How do you raise an API error?</td><td>Use <code>HTTPException</code> with a status code and detail, for example <code>raise HTTPException(status_code=404, detail="Not found")</code>.</td></tr>
+      <tr><td>How do you handle CORS?</td><td>Add <code>CORSMiddleware</code> and configure trusted origins, methods, headers, and credentials. Avoid wildcard origins in sensitive production APIs.</td></tr>
+      <tr><td>How do you test FastAPI routes?</td><td>Use <code>TestClient(app)</code>, send requests to endpoints, and assert status codes and response bodies.</td></tr>
+      <tr><td>How can Pydantic calculate BMI?</td><td>Accept <code>height_cm</code> and <code>weight_kg</code>, then use <code>@computed_field</code> to return derived fields like <code>bmi</code> and <code>bmi_category</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Advanced level</h3>
+  <table>
+    <thead><tr><th>Question</th><th>Strong answer</th></tr></thead>
+    <tbody>
+      <tr><td>How does FastAPI handle async?</td><td>FastAPI supports <code>async def</code> endpoints for non-blocking I/O. Use async database drivers or HTTP clients inside async routes; avoid blocking calls in the event loop.</td></tr>
+      <tr><td>When should you use sync vs async endpoints?</td><td>Use sync <code>def</code> for CPU-bound or blocking library calls. Use <code>async def</code> for async I/O such as async DB calls, HTTP calls, WebSockets, and streaming.</td></tr>
+      <tr><td>What happens in a dependency with <code>yield</code>?</td><td>Code before <code>yield</code> runs before the endpoint. Code after <code>yield</code> runs as cleanup, useful for closing DB sessions or releasing resources.</td></tr>
+      <tr><td>How do you structure a large FastAPI project?</td><td>Split routers, schemas, models, CRUD/service logic, settings, security, database setup, and tests into separate modules.</td></tr>
+      <tr><td>How do you prevent leaking sensitive fields?</td><td>Use separate request and response schemas. Never return ORM models directly when they contain password hashes, tokens, or internal fields.</td></tr>
+      <tr><td>How do you secure protected routes?</td><td>Use OAuth2/JWT dependencies to identify the user, then role or permission dependencies to authorize actions.</td></tr>
+      <tr><td>How do you make FastAPI production-ready?</td><td>Add persistent storage, migrations, auth, environment config, logging, tests, CORS restrictions, monitoring, deployment automation, and secret management.</td></tr>
+      <tr><td>How would you debug slow endpoints?</td><td>Add timing middleware, inspect database queries, check blocking calls inside async routes, profile slow code, and monitor latency metrics.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Scenario questions</h3>
+  <table>
+    <thead><tr><th>Scenario</th><th>How to answer</th></tr></thead>
+    <tbody>
+      <tr><td>Client sends age, height, and weight. API should return BMI.</td><td>Create a Pydantic model with validated numeric fields and computed fields for <code>bmi</code> and category. Add a <code>POST /health/bmi</code> route.</td></tr>
+      <tr><td>Frontend cannot call the API from browser.</td><td>Check CORS. Configure <code>CORSMiddleware</code> with the frontend origin and required methods/headers.</td></tr>
+      <tr><td>Data disappears after server restart.</td><td>The app is using in-memory storage. Add a database such as SQLite/PostgreSQL and move CRUD logic to database-backed functions.</td></tr>
+      <tr><td>Endpoint returns password hash in response.</td><td>Create a separate response schema that excludes sensitive fields and use it as <code>response_model</code>.</td></tr>
+      <tr><td>Duplicate username should fail.</td><td>Check uniqueness in business logic and enforce a unique database constraint. Return <code>400</code> or <code>409</code> with a useful message.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Common mistakes</h3>
+  <ul class="study-list">
+    <li>Using <code>GET</code> for actions that create, update, or delete data.</li>
+    <li>Putting database models directly in public responses without response schemas.</li>
+    <li>Storing secrets in source code.</li>
+    <li>Using in-memory lists and expecting data to persist after restart.</li>
+    <li>Allowing <code>allow_origins=["*"]</code> in production without understanding the risk.</li>
+    <li>Writing only happy-path tests and skipping validation/error tests.</li>
+    <li>Using blocking database or HTTP calls inside <code>async def</code> endpoints.</li>
+  </ul>
+
+  <h3>Practice roadmap</h3>
+  <div class="checklist">
+    <div class="check-item"><span>1</span><div>Add filtering: <code>GET /products?category=books</code>.</div></div>
+    <div class="check-item"><span>2</span><div>Add pagination: <code>limit</code> and <code>offset</code>.</div></div>
+    <div class="check-item"><span>3</span><div>Add <code>PATCH /products/{product_id}</code> for partial updates.</div></div>
+    <div class="check-item"><span>4</span><div>Add SQLite persistence with SQLAlchemy.</div></div>
+    <div class="check-item"><span>5</span><div>Add authentication for write operations.</div></div>
+    <div class="check-item"><span>6</span><div>Add tests for all success and failure cases.</div></div>
+  </div>
+</div>
+
+<div id="cheatsheet" class="section">
+  <h2>Cheatsheet</h2>
+
+  <div class="theory-box">
+    <h3>How to use this cheatsheet</h3>
+    <p>Use the cheatsheet after you understand the theory. It is for quick recall: commands, route patterns, payload shape, model names, status codes, and project structure. If a command or syntax pattern feels unclear, go back to the full section that explains it.</p>
+  </div>
+
+  <h3>Case-study quick commands</h3>
+<pre><code><span class="cm"># Run the API</span>
+uvicorn main:app --reload
+
+<span class="cm"># Create an employee</span>
+curl -X POST http://127.0.0.1:8000/add_employee \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{<span class="str">"id"</span>:101,<span class="str">"name"</span>:<span class="str">"Santosh Kumar"</span>,<span class="str">"department"</span>:<span class="str">"IT"</span>,<span class="str">"email"</span>:<span class="str">"santosh@company.com"</span>,<span class="str">"age"</span>:33}'
+
+<span class="cm"># List employees</span>
+curl http://127.0.0.1:8000/employees
+
+<span class="cm"># Get one employee</span>
+curl http://127.0.0.1:8000/employee/101
+
+<span class="cm"># Update an employee</span>
+curl -X PUT http://127.0.0.1:8000/update_employee/101 \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{<span class="str">"name"</span>:<span class="str">"Santosh Kumar"</span>,<span class="str">"department"</span>:<span class="str">"Finance"</span>,<span class="str">"email"</span>:<span class="str">"santosh@company.com"</span>,<span class="str">"age"</span>:34}'
+
+<span class="cm"># Delete an employee</span>
+curl -X DELETE http://127.0.0.1:8000/remove_employee/101</code></pre>
+
+  <h3>Quick-reference table</h3>
+  <table>
+    <thead><tr><th>Feature</th><th>Syntax</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Install</td><td><code>pip install -r requirements.txt</code></td><td>Includes FastAPI, Uvicorn, Pydantic, and email validation.</td></tr>
+      <tr><td>Create app</td><td><code>app = FastAPI(title="My API")</code></td><td>Metadata appears in Swagger UI.</td></tr>
+      <tr><td>GET route</td><td><code>@app.get("/products")</code></td><td>Read/retrieve records.</td></tr>
+      <tr><td>POST route</td><td><code>@app.post("/products", status_code=201)</code></td><td>Create a new record.</td></tr>
+      <tr><td>PUT route</td><td><code>@app.put("/products/{product_id}")</code></td><td>Full resource update.</td></tr>
+      <tr><td>PATCH route</td><td><code>@app.patch("/path/{id}")</code></td><td>Partial update</td></tr>
+      <tr><td>DELETE route</td><td><code>@app.delete("/products/{product_id}")</code></td><td>Remove one record.</td></tr>
+      <tr><td>Path param</td><td><code>def get_product(product_id: int)</code></td><td>Must match <code>{product_id}</code> in path.</td></tr>
+      <tr><td>Query param</td><td><code>def list_products(limit: int = 20)</code></td><td>Recommended for pagination/filtering.</td></tr>
+      <tr><td>Request body</td><td><code>def create_product(payload: ProductCreate)</code></td><td>Pydantic model parsed from JSON body.</td></tr>
+      <tr><td>Response model</td><td><code>response_model=ProductResponse</code></td><td>Validates and documents API output.</td></tr>
+      <tr><td>Field constraint</td><td><code>Field(..., gt=0, max_length=50)</code></td><td><code>...</code> = required</td></tr>
+      <tr><td>Dependency</td><td><code>Depends(fn)</code></td><td>Injected into route via function arg</td></tr>
+      <tr><td>Auth token</td><td><code>OAuth2PasswordBearer(tokenUrl="token")</code></td><td>Adds lock icon in Swagger UI</td></tr>
+      <tr><td>Raise HTTP error</td><td><code>raise HTTPException(404, "Not found")</code></td><td>Returns JSON <code>{"detail": "..."}</code></td></tr>
+      <tr><td>Background task</td><td><code>bg.add_task(fn, arg)</code></td><td>Runs after response is sent</td></tr>
+      <tr><td>WebSocket</td><td><code>@app.websocket("/ws")</code></td><td>Use <code>async def</code></td></tr>
+      <tr><td>File upload</td><td><code>file: UploadFile = File(...)</code></td><td>Access via <code>await file.read()</code></td></tr>
+      <tr><td>Middleware</td><td><code>app.add_middleware(Class)</code></td><td>Wraps all requests</td></tr>
+      <tr><td>CORS</td><td><code>CORSMiddleware</code></td><td>Set <code>allow_origins</code></td></tr>
+      <tr><td>Sub-router</td><td><code>APIRouter(prefix="/v1")</code></td><td>Mount with <code>app.include_router()</code></td></tr>
+      <tr><td>Test client</td><td><code>TestClient(app)</code></td><td>From <code>fastapi.testclient</code></td></tr>
+      <tr><td>Run dev</td><td><code>uvicorn main:app --reload</code></td><td>Hot-reload on save</td></tr>
+      <tr><td>Run prod</td><td><code>gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app</code></td><td>4 workers</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Anatomy of a FastAPI route</h3>
+<pre><code>@app.post(                            <span class="cm"># HTTP method</span>
+    <span class="str">"/products"</span>,                     <span class="cm"># endpoint path</span>
+    response_model=ProductResponse,   <span class="cm"># output schema</span>
+    status_code=<span class="num">201</span>,                  <span class="cm"># success status</span>
+    summary=<span class="str">"Create product"</span>,         <span class="cm"># Swagger title</span>
+)
+<span class="kw">def</span> <span class="fn">create_product</span>(
+    payload: ProductCreate,           <span class="cm"># request body</span>
+) -> ProductResponse:
+    ...</code></pre>
+
+  <h3>Project structure (recommended)</h3>
+<pre><code>myapp/
+├── main.py              <span class="cm"># FastAPI app and routers</span>
+├── routers/
+│   └── products.py      <span class="cm"># APIRouter for one resource area</span>
+├── models/
+│   └── product.py       <span class="cm"># SQLAlchemy table models</span>
+├── schemas/
+│   └── product.py       <span class="cm"># Pydantic request/response schemas</span>
+├── crud/
+│   └── product.py       <span class="cm"># DB query functions</span>
+├── core/
+│   ├── config.py        <span class="cm"># Pydantic settings</span>
+│   └── security.py      <span class="cm"># JWT / password hashing</span>
+└── database.py          <span class="cm"># engine, session, get_db</span></code></pre>
+</div>
+</main>
+
+<script>
+const sections = Array.from(document.querySelectorAll('.section'));
+const buttons = Array.from(document.querySelectorAll('.nav-btn'));
+const sectionOrder = [
+  'intro',
+  'routing',
+  'pydantic',
+  'di',
+  'errors',
+  'advanced',
+  'project',
+  'database',
+  'auth',
+  'testing',
+  'production',
+  'interview',
+  'cheatsheet'
+];
+const searchInput = document.getElementById('guideSearch');
+const clearSearch = document.getElementById('clearSearch');
+const emptyState = document.getElementById('emptyState');
+const progressBar = document.getElementById('progressBar');
+
+function show(id){
+  searchInput.value = '';
+  clearSearch.classList.remove('visible');
+  emptyState.classList.remove('visible');
+
+  sections.forEach(section => {
+    section.classList.remove('active', 'search-match');
+    section.hidden = section.id !== id;
+  });
+
+  buttons.forEach(button => {
+    const isActive = button.getAttribute('aria-controls') === id;
+    button.style.display = '';
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  });
+
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  target.hidden = false;
+  updateProgress();
+}
+
+function runSearch(value){
+  const query = value.trim().toLowerCase();
+  clearSearch.classList.toggle('visible', Boolean(query));
+
+  if(!query){
+    show(document.querySelector('.nav-btn.active')?.getAttribute('aria-controls') || 'intro');
+    return;
+  }
+
+  let matches = 0;
+  sections.forEach(section => {
+    const isMatch = section.innerText.toLowerCase().includes(query);
+    section.classList.toggle('active', false);
+    section.classList.toggle('search-match', isMatch);
+    section.hidden = !isMatch;
+    matches += isMatch ? 1 : 0;
+  });
+
+  buttons.forEach(button => {
+    const id = button.getAttribute('aria-controls');
+    const section = document.getElementById(id);
+    const isMatch = !section.hidden;
+    button.classList.remove('active');
+    button.setAttribute('aria-selected', 'false');
+    button.style.display = isMatch ? '' : 'none';
+  });
+
+  emptyState.classList.toggle('visible', matches === 0);
+  updateProgress();
+}
+
+function updateProgress(){
+  const doc = document.documentElement;
+  const scrollable = doc.scrollHeight - doc.clientHeight;
+  const percent = scrollable > 0 ? (doc.scrollTop / scrollable) * 100 : 0;
+  progressBar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+}
+
+function addCopyButtons(){
+  document.querySelectorAll('pre').forEach((block, index) => {
+    const button = document.createElement('button');
+    button.className = 'copy-btn';
+    button.type = 'button';
+    button.textContent = 'Copy';
+    button.setAttribute('aria-label', `Copy code example ${index + 1}`);
+    button.addEventListener('click', async () => {
+      const code = block.querySelector('code')?.innerText || '';
+      try {
+        await navigator.clipboard.writeText(code);
+        button.textContent = 'Copied';
+        setTimeout(() => button.textContent = 'Copy', 1400);
+      } catch {
+        button.textContent = 'Select';
+        setTimeout(() => button.textContent = 'Copy', 1400);
+      }
+    });
+    block.appendChild(button);
+  });
+}
+
+buttons.forEach((button, index) => {
+  button.addEventListener('keydown', event => {
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+    event.preventDefault();
+    let nextIndex = index;
+    if(event.key === 'ArrowRight') nextIndex = (index + 1) % buttons.length;
+    if(event.key === 'ArrowLeft') nextIndex = (index - 1 + buttons.length) % buttons.length;
+    if(event.key === 'Home') nextIndex = 0;
+    if(event.key === 'End') nextIndex = buttons.length - 1;
+    buttons[nextIndex].focus();
+    show(sectionOrder[nextIndex]);
+  });
+});
+
+searchInput.addEventListener('input', event => runSearch(event.target.value));
+clearSearch.addEventListener('click', () => {
+  searchInput.value = '';
+  buttons.forEach(button => button.style.display = '');
+  show('intro');
+  searchInput.focus();
+});
+window.addEventListener('scroll', updateProgress, {passive:true});
+window.addEventListener('resize', updateProgress);
+
+sections.forEach(section => {
+  if(!section.classList.contains('active')) section.hidden = true;
+});
+addCopyButtons();
+updateProgress();
+</script>
+</body>
+</html>
