@@ -82,6 +82,12 @@ pre:hover .copy-btn,.copy-btn:focus-visible{opacity:1}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:0.75rem 0}
 .method-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-border-tertiary)}
 .method-row:last-child{border-bottom:none}
+.flow-diagram{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin:1rem 0 1.1rem}
+.flow-step{position:relative;background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:8px;padding:.85rem;min-height:86px;box-shadow:0 1px 0 rgba(23,33,43,.03)}
+.flow-step:not(:last-child)::after{content:"";position:absolute;right:-10px;top:50%;width:10px;height:2px;background:#9fb3c6}
+.flow-step strong{display:block;font-size:13px;margin-bottom:.35rem}
+.flow-step span{display:block;font-size:12px;color:var(--color-text-secondary);line-height:1.45}
+.flow-step code{font-size:11px}
 .tip{background:var(--color-background-success);border-left:4px solid var(--color-border-success);padding:12px 14px;border-radius:0 8px 8px 0;margin:0.85rem 0}
 .tip p{color:var(--color-text-success);margin:0;font-size:13px}
 .warn{background:var(--color-background-warning);border-left:4px solid var(--color-border-warning);padding:12px 14px;border-radius:0 8px 8px 0;margin:0.85rem 0}
@@ -127,6 +133,8 @@ pre .num{color:#ff9aa2}
   .toolbar-row{grid-template-columns:1fr}
   .nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:.2rem;scrollbar-width:thin}
   .nav-btn{white-space:nowrap}
+  .flow-diagram{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .flow-step::after{display:none}
 }
 @media (max-width:520px){
   .hero-panel{grid-template-columns:1fr}
@@ -136,6 +144,7 @@ pre .num{color:#ff9aa2}
   pre{padding:.9rem .85rem}
   .copy-btn{opacity:1}
   table{display:block;overflow-x:auto}
+  .flow-diagram{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -169,6 +178,7 @@ pre .num{color:#ff9aa2}
       <button class="nav-btn" onclick="show('pydantic')" role="tab" aria-controls="pydantic" aria-selected="false">Pydantic & Validation</button>
       <button class="nav-btn" onclick="show('di')" role="tab" aria-controls="di" aria-selected="false">Dependency Injection</button>
       <button class="nav-btn" onclick="show('errors')" role="tab" aria-controls="errors" aria-selected="false">Error Handling</button>
+      <button class="nav-btn" onclick="show('statuscodes')" role="tab" aria-controls="statuscodes" aria-selected="false">Status Codes</button>
       <button class="nav-btn" onclick="show('advanced')" role="tab" aria-controls="advanced" aria-selected="false">Advanced</button>
       <button class="nav-btn" onclick="show('project')" role="tab" aria-controls="project" aria-selected="false">Case Study</button>
       <button class="nav-btn" onclick="show('database')" role="tab" aria-controls="database" aria-selected="false">Database</button>
@@ -176,7 +186,6 @@ pre .num{color:#ff9aa2}
       <button class="nav-btn" onclick="show('testing')" role="tab" aria-controls="testing" aria-selected="false">Testing</button>
       <button class="nav-btn" onclick="show('production')" role="tab" aria-controls="production" aria-selected="false">Production</button>
       <button class="nav-btn" onclick="show('interview')" role="tab" aria-controls="interview" aria-selected="false">Interview</button>
-      <button class="nav-btn" onclick="show('statuscodes')" role="tab" aria-controls="statuscodes" aria-selected="false">Status Codes</button>
       <button class="nav-btn" onclick="show('cheatsheet')" role="tab" aria-controls="cheatsheet" aria-selected="false">Cheatsheet</button>
     </nav>
   </div>
@@ -247,6 +256,18 @@ pre .num{color:#ff9aa2}
 
   <h3>How FastAPI processes a request</h3>
   <p>This request lifecycle is one of the most important mental models to understand before building larger APIs.</p>
+  <div class="flow-diagram" aria-label="FastAPI request flow diagram">
+    <div class="flow-step"><strong>1. Client</strong><span>Sends <code>GET</code>, <code>POST</code>, headers, query params, and body.</span></div>
+    <div class="flow-step"><strong>2. Uvicorn</strong><span>Receives the HTTP request and passes it into the ASGI app.</span></div>
+    <div class="flow-step"><strong>3. Router</strong><span>Matches method and path to the correct route function.</span></div>
+    <div class="flow-step"><strong>4. Validation</strong><span>Extracts data and validates it with Pydantic models.</span></div>
+    <div class="flow-step"><strong>5. Dependencies</strong><span>Runs reusable logic such as auth, DB sessions, and settings.</span></div>
+    <div class="flow-step"><strong>6. Endpoint</strong><span>Executes your Python business logic.</span></div>
+    <div class="flow-step"><strong>7. Response Model</strong><span>Filters and serializes the output into JSON.</span></div>
+    <div class="flow-step"><strong>8. Middleware</strong><span>Adds CORS, logs, timing, compression, or custom headers.</span></div>
+    <div class="flow-step"><strong>9. Status Code</strong><span>Returns <code>200</code>, <code>201</code>, <code>404</code>, <code>422</code>, etc.</span></div>
+    <div class="flow-step"><strong>10. Response</strong><span>Client receives headers, status code, and body.</span></div>
+  </div>
   <table>
     <thead><tr><th>Step</th><th>What happens</th><th>FastAPI feature involved</th></tr></thead>
     <tbody>
@@ -865,6 +886,64 @@ Depends(get_db, use_cache=<span class="kw">False</span>)</code></pre>
   <div class="warn"><p><strong>Production rule:</strong> return useful client errors, but log internal stack traces server-side. Do not expose raw tracebacks to API users.</p></div>
 </div>
 
+<div id="statuscodes" class="section">
+  <h2>HTTP Status Codes Reference</h2>
+  <p>Status codes are part of your API contract. They tell the client whether a request succeeded, failed because of client input, or failed because of a server problem.</p>
+
+  <div class="theory-box">
+    <h3>Theory deep dive</h3>
+    <p>Use status codes consistently. A frontend, mobile app, or another backend service often makes decisions based on status codes before reading the response body. Good status code choices make APIs easier to debug and integrate.</p>
+    <p>FastAPI automatically returns <code>422</code> for validation errors, but you should choose explicit codes for business behavior such as duplicate resources, missing records, unauthenticated requests, and forbidden actions.</p>
+  </div>
+
+  <h3>2xx - Success</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>FastAPI example</th></tr></thead>
+    <tbody>
+      <tr><td><code>200</code></td><td>OK</td><td>Request succeeded and returns a body.</td><td><code>GET /products/1</code></td></tr>
+      <tr><td><code>201</code></td><td>Created</td><td>A new resource was created.</td><td><code>@app.post(..., status_code=201)</code></td></tr>
+      <tr><td><code>202</code></td><td>Accepted</td><td>Request accepted but processing continues asynchronously.</td><td>Background job or queue submission.</td></tr>
+      <tr><td><code>204</code></td><td>No Content</td><td>Request succeeded but there is no response body.</td><td>Delete endpoint with no body.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3xx - Redirects</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>301</code></td><td>Moved Permanently</td><td>Resource moved permanently.</td><td>Old docs URL to new docs URL.</td></tr>
+      <tr><td><code>302</code></td><td>Found</td><td>Temporary redirect.</td><td>Login redirect flow.</td></tr>
+      <tr><td><code>304</code></td><td>Not Modified</td><td>Cached client copy is still valid.</td><td>Conditional GET with cache headers.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4xx - Client errors</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Common FastAPI source</th></tr></thead>
+    <tbody>
+      <tr><td><code>400</code></td><td>Bad Request</td><td>Request is valid JSON but violates a business rule.</td><td>Duplicate SKU, invalid operation.</td></tr>
+      <tr><td><code>401</code></td><td>Unauthorized</td><td>User is not authenticated.</td><td>Missing or invalid bearer token.</td></tr>
+      <tr><td><code>403</code></td><td>Forbidden</td><td>User is authenticated but not allowed.</td><td>Non-admin tries admin action.</td></tr>
+      <tr><td><code>404</code></td><td>Not Found</td><td>Resource does not exist.</td><td>ID lookup returns nothing.</td></tr>
+      <tr><td><code>409</code></td><td>Conflict</td><td>Request conflicts with current state.</td><td>Duplicate unique field or version conflict.</td></tr>
+      <tr><td><code>415</code></td><td>Unsupported Media Type</td><td>Client sends unsupported content type.</td><td>Expected JSON but received unsupported body type.</td></tr>
+      <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>Validation failed.</td><td>Pydantic validation error.</td></tr>
+      <tr><td><code>429</code></td><td>Too Many Requests</td><td>Client exceeded rate limit.</td><td>Rate limiting middleware/dependency.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5xx - Server errors</h3>
+  <table>
+    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Production note</th></tr></thead>
+    <tbody>
+      <tr><td><code>500</code></td><td>Internal Server Error</td><td>Unhandled bug or unexpected server failure.</td><td>Log the stack trace; return a clean message.</td></tr>
+      <tr><td><code>502</code></td><td>Bad Gateway</td><td>Upstream service returned invalid response.</td><td>Often from proxy or service gateway.</td></tr>
+      <tr><td><code>503</code></td><td>Service Unavailable</td><td>Service is temporarily unavailable.</td><td>Maintenance, overload, dependency outage.</td></tr>
+      <tr><td><code>504</code></td><td>Gateway Timeout</td><td>Upstream service timed out.</td><td>Investigate slow dependencies and timeouts.</td></tr>
+    </tbody>
+  </table>
+</div>
+
 <div id="advanced" class="section">
   <h2>Advanced Topics</h2>
 
@@ -1462,64 +1541,6 @@ CMD [<span class="str">"uvicorn"</span>, <span class="str">"main:app"</span>, <s
   </div>
 </div>
 
-<div id="statuscodes" class="section">
-  <h2>HTTP Status Codes Reference</h2>
-  <p>Status codes are part of your API contract. They tell the client whether a request succeeded, failed because of client input, or failed because of a server problem.</p>
-
-  <div class="theory-box">
-    <h3>Theory deep dive</h3>
-    <p>Use status codes consistently. A frontend, mobile app, or another backend service often makes decisions based on status codes before reading the response body. Good status code choices make APIs easier to debug and integrate.</p>
-    <p>FastAPI automatically returns <code>422</code> for validation errors, but you should choose explicit codes for business behavior such as duplicate resources, missing records, unauthenticated requests, and forbidden actions.</p>
-  </div>
-
-  <h3>2xx - Success</h3>
-  <table>
-    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>FastAPI example</th></tr></thead>
-    <tbody>
-      <tr><td><code>200</code></td><td>OK</td><td>Request succeeded and returns a body.</td><td><code>GET /products/1</code></td></tr>
-      <tr><td><code>201</code></td><td>Created</td><td>A new resource was created.</td><td><code>@app.post(..., status_code=201)</code></td></tr>
-      <tr><td><code>202</code></td><td>Accepted</td><td>Request accepted but processing continues asynchronously.</td><td>Background job or queue submission.</td></tr>
-      <tr><td><code>204</code></td><td>No Content</td><td>Request succeeded but there is no response body.</td><td>Delete endpoint with no body.</td></tr>
-    </tbody>
-  </table>
-
-  <h3>3xx - Redirects</h3>
-  <table>
-    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Example</th></tr></thead>
-    <tbody>
-      <tr><td><code>301</code></td><td>Moved Permanently</td><td>Resource moved permanently.</td><td>Old docs URL to new docs URL.</td></tr>
-      <tr><td><code>302</code></td><td>Found</td><td>Temporary redirect.</td><td>Login redirect flow.</td></tr>
-      <tr><td><code>304</code></td><td>Not Modified</td><td>Cached client copy is still valid.</td><td>Conditional GET with cache headers.</td></tr>
-    </tbody>
-  </table>
-
-  <h3>4xx - Client errors</h3>
-  <table>
-    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Common FastAPI source</th></tr></thead>
-    <tbody>
-      <tr><td><code>400</code></td><td>Bad Request</td><td>Request is valid JSON but violates a business rule.</td><td>Duplicate SKU, invalid operation.</td></tr>
-      <tr><td><code>401</code></td><td>Unauthorized</td><td>User is not authenticated.</td><td>Missing or invalid bearer token.</td></tr>
-      <tr><td><code>403</code></td><td>Forbidden</td><td>User is authenticated but not allowed.</td><td>Non-admin tries admin action.</td></tr>
-      <tr><td><code>404</code></td><td>Not Found</td><td>Resource does not exist.</td><td>ID lookup returns nothing.</td></tr>
-      <tr><td><code>409</code></td><td>Conflict</td><td>Request conflicts with current state.</td><td>Duplicate unique field or version conflict.</td></tr>
-      <tr><td><code>415</code></td><td>Unsupported Media Type</td><td>Client sends unsupported content type.</td><td>Expected JSON but received unsupported body type.</td></tr>
-      <tr><td><code>422</code></td><td>Unprocessable Entity</td><td>Validation failed.</td><td>Pydantic validation error.</td></tr>
-      <tr><td><code>429</code></td><td>Too Many Requests</td><td>Client exceeded rate limit.</td><td>Rate limiting middleware/dependency.</td></tr>
-    </tbody>
-  </table>
-
-  <h3>5xx - Server errors</h3>
-  <table>
-    <thead><tr><th>Code</th><th>Name</th><th>Use when</th><th>Production note</th></tr></thead>
-    <tbody>
-      <tr><td><code>500</code></td><td>Internal Server Error</td><td>Unhandled bug or unexpected server failure.</td><td>Log the stack trace; return a clean message.</td></tr>
-      <tr><td><code>502</code></td><td>Bad Gateway</td><td>Upstream service returned invalid response.</td><td>Often from proxy or service gateway.</td></tr>
-      <tr><td><code>503</code></td><td>Service Unavailable</td><td>Service is temporarily unavailable.</td><td>Maintenance, overload, dependency outage.</td></tr>
-      <tr><td><code>504</code></td><td>Gateway Timeout</td><td>Upstream service timed out.</td><td>Investigate slow dependencies and timeouts.</td></tr>
-    </tbody>
-  </table>
-</div>
-
 <div id="cheatsheet" class="section">
   <h2>Cheatsheet</h2>
 
@@ -1621,6 +1642,7 @@ const sectionOrder = [
   'pydantic',
   'di',
   'errors',
+  'statuscodes',
   'advanced',
   'project',
   'database',
@@ -1628,7 +1650,6 @@ const sectionOrder = [
   'testing',
   'production',
   'interview',
-  'statuscodes',
   'cheatsheet'
 ];
 const searchInput = document.getElementById('guideSearch');
