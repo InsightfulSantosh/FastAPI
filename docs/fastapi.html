@@ -129,6 +129,7 @@ pre .fn{color:#7bd88f}
 pre .str{color:#ffd479}
 pre .cm{color:#8fa1b3}
 pre .num{color:#ff9aa2}
+pre .op{color:#d7b8ff}
 @media (max-width:820px){
   .study-shell{width:min(100% - 24px,1120px);padding-top:.75rem}
   .study-hero{grid-template-columns:1fr;align-items:start}
@@ -160,10 +161,10 @@ pre .num{color:#ff9aa2}
   <div>
     <div class="eyebrow">FastAPI Study Notes</div>
     <h1 class="hero-title">Complete Study Guide</h1>
-    <p class="hero-subtitle">A general FastAPI study guide with theory, practical examples, validation patterns, database design, authentication, testing, deployment, and a small project case study.</p>
+    <p class="hero-subtitle">A general FastAPI study guide with theory, practical examples, validation patterns, database design, authentication, testing, deployment, and two project case studies.</p>
   </div>
   <div class="hero-panel" aria-label="Guide summary">
-    <div class="metric"><strong>13</strong><span>Study sections</span></div>
+    <div class="metric"><strong>14</strong><span>Study sections</span></div>
     <div class="metric"><strong>60+</strong><span>Code examples</span></div>
     <div class="metric"><strong>45 min</strong><span>Deep review</span></div>
   </div>
@@ -183,7 +184,7 @@ pre .num{color:#ff9aa2}
       <button class="nav-btn" onclick="show('errors')" role="tab" aria-controls="errors" aria-selected="false">Error Handling</button>
       <button class="nav-btn" onclick="show('statuscodes')" role="tab" aria-controls="statuscodes" aria-selected="false">Status Codes</button>
       <button class="nav-btn" onclick="show('advanced')" role="tab" aria-controls="advanced" aria-selected="false">Advanced</button>
-      <button class="nav-btn" onclick="show('project')" role="tab" aria-controls="project" aria-selected="false">Case Study</button>
+      <button class="nav-btn" onclick="show('project')" role="tab" aria-controls="project" aria-selected="false">Case Studies</button>
       <button class="nav-btn" onclick="show('database')" role="tab" aria-controls="database" aria-selected="false">Database</button>
       <button class="nav-btn" onclick="show('auth')" role="tab" aria-controls="auth" aria-selected="false">Auth</button>
       <button class="nav-btn" onclick="show('testing')" role="tab" aria-controls="testing" aria-selected="false">Testing</button>
@@ -1109,55 +1110,407 @@ FROM python:3.12-slim</code></pre>
 </div>
 
 <div id="project" class="section">
-  <h2>Case Study: Employee CRUD API</h2>
-  <p>This repository is one practical CRUD example. Use it as a case study after learning the general FastAPI patterns from the earlier sections.</p>
+  <h2>Case Studies: Employee APIs</h2>
+  <p>This repository has two practical FastAPI case studies. The first teaches routing, validation, and in-memory CRUD. The second keeps the same employee domain but upgrades the design with SQLAlchemy, SQLite, and a dedicated CRUD layer.</p>
 
   <div class="theory-box">
     <h3>Theory deep dive</h3>
     <p>A CRUD API models the lifecycle of a resource. The resource here is an employee. Create adds a new employee, Read fetches employees, Update changes an existing employee, and Delete removes one. Most business APIs are built from this same pattern.</p>
-    <p>The current implementation is intentionally simple: it uses an in-memory list so you can focus on routing, validation, and errors first. Once those concepts are clear, the same API contract can be backed by a real database.</p>
+    <p>The learning path is intentional: start with a simple in-memory app to understand FastAPI fundamentals, then move to a database-backed app to learn persistence, sessions, ORM models, and module separation.</p>
   </div>
 
-  <h3>CRUD architecture diagram</h3>
-  <div class="flow-diagram compact" aria-label="CRUD architecture diagram">
+  <h3>How to study these case studies</h3>
+  <table>
+    <thead><tr><th>Stage</th><th>Read this first</th><th>What you should be able to explain</th><th>Practice checkpoint</th></tr></thead>
+    <tbody>
+      <tr><td>1. API contract</td><td>Endpoint tables</td><td>Which URL handles create, list, read, update, and delete operations.</td><td>Open Swagger UI and identify every endpoint without reading the source code.</td></tr>
+      <tr><td>2. Data validation</td><td><code>model.py</code> or <code>schemas.py</code></td><td>Which fields are required, optional, constrained, or returned by the API.</td><td>Send an invalid email or department and observe the <code>422</code> response.</td></tr>
+      <tr><td>3. Route behavior</td><td><code>main.py</code></td><td>How FastAPI maps HTTP requests to Python functions.</td><td>Trace one request from route decorator to return value.</td></tr>
+      <tr><td>4. Business rules</td><td>Duplicate checks and not-found checks</td><td>Why some errors are <code>400</code> or <code>404</code> instead of validation errors.</td><td>Create duplicate data and inspect the error response.</td></tr>
+      <tr><td>5. Persistence upgrade</td><td><code>database.py</code>, <code>models.py</code>, <code>crud.py</code></td><td>How a database-backed API separates storage logic from HTTP logic.</td><td>Restart the CRUD app and confirm database records still exist.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Learning outcomes</h3>
+  <div class="checklist">
+    <div class="check-item"><span>1</span><div>Explain why the basic app is useful for learning but not suitable for persistent data.</div></div>
+    <div class="check-item"><span>2</span><div>Describe the difference between Pydantic schemas and SQLAlchemy models.</div></div>
+    <div class="check-item"><span>3</span><div>Trace a request from route decorator to validation, business logic, storage, and response.</div></div>
+    <div class="check-item"><span>4</span><div>Identify where duplicate email checks, not-found checks, and database commits happen.</div></div>
+    <div class="check-item"><span>5</span><div>Explain why the CRUD app has a cleaner structure for real backend projects.</div></div>
+  </div>
+
+  <h3>Case Study 1: Building a Foundation Employee API</h3>
+  <p><strong>Scenario:</strong> build the first version of an Employee Management API without a database. The goal is to understand FastAPI routing, Pydantic validation, response models, and error handling before introducing persistence.</p>
+  <div class="flow-diagram compact" aria-label="Basic app architecture diagram">
     <div class="flow-step"><b class="flow-icon">API</b><strong>Route layer</strong><span>Receives HTTP requests and chooses the correct CRUD operation.</span></div>
     <div class="flow-step"><b class="flow-icon">MODEL</b><strong>Pydantic schema</strong><span>Validates create/update payloads and shapes response data.</span></div>
     <div class="flow-step"><b class="flow-icon">RULE</b><strong>Business checks</strong><span>Prevents duplicate IDs, missing records, and invalid updates.</span></div>
-    <div class="flow-step"><b class="flow-icon">STORE</b><strong>Data store</strong><span>Starts as an in-memory list; later becomes SQLAlchemy and a database.</span></div>
+    <div class="flow-step"><b class="flow-icon">LIST</b><strong>In-memory store</strong><span><code>employees_db</code> stores records until the server restarts.</span></div>
     <div class="flow-step"><b class="flow-icon">RESP</b><strong>API response</strong><span>Returns JSON plus status codes such as <code>200</code>, <code>201</code>, or <code>404</code>.</span></div>
   </div>
 
   <div class="callout-grid">
     <div class="card">
-      <div class="mini-title">Application file</div>
-      <p><code>main.py</code> creates the FastAPI app, registers routes, stores employees in memory, and raises HTTP errors.</p>
+      <div class="mini-title">Study focus</div>
+      <p>Learn how request bodies become Python objects, how route functions return JSON, and how <code>HTTPException</code> controls API errors.</p>
     </div>
     <div class="card">
-      <div class="mini-title">Schema file</div>
-      <p><code>model.py</code> defines Pydantic models for create, update, and response validation.</p>
+      <div class="mini-title">Design decision</div>
+      <p>The app uses <code>employees_db</code>, a simple Python list, so the first case study stays focused on FastAPI fundamentals.</p>
     </div>
     <div class="card">
-      <div class="mini-title">Storage style</div>
-      <p><code>employees_db</code> is a Python list. It is simple for learning, but data disappears when the server restarts.</p>
+      <div class="mini-title">Limitation to notice</div>
+      <p>Because there is no database, the API cannot preserve data after restart and cannot enforce uniqueness outside the running process.</p>
     </div>
   </div>
 
-  <h3>Project architecture</h3>
+  <h3>Repository architecture</h3>
 <pre><code>FastAPI/
-├── main.py              <span class="cm"># API routes and in-memory CRUD logic</span>
-├── model.py             <span class="cm"># Pydantic request/response schemas</span>
-├── requirements.txt     <span class="cm"># Runtime dependencies</span>
-├── pyproject.toml       <span class="cm"># Project metadata and dependencies</span>
-├── Tutorial.ipynb       <span class="cm"># Notebook study notes</span>
-└── docs/index.html      <span class="cm"># GitHub Pages study guide</span></code></pre>
+├── 1. Basic-app/
+│   ├── main.py              <span class="cm"># API routes and in-memory CRUD logic</span>
+│   └── model.py             <span class="cm"># Pydantic request/response schemas</span>
+├── 2. CRUD-app/
+│   ├── crud.py              <span class="cm"># Database CRUD functions</span>
+│   ├── database.py          <span class="cm"># SQLAlchemy engine, session, and Base</span>
+│   ├── main.py              <span class="cm"># API routes and dependency injection</span>
+│   ├── models.py            <span class="cm"># SQLAlchemy table models</span>
+│   ├── schemas.py           <span class="cm"># Pydantic request/response schemas</span>
+│   └── test.db              <span class="cm"># SQLite database file</span>
+├── notebooks/
+│   └── Employee_API_guide.ipynb
+└── docs/
+    └── fastapi.html</code></pre>
 
-  <h3>API contract</h3>
+  <h3>Source analysis: Basic app</h3>
+  <table>
+    <thead><tr><th>Source file</th><th>Role in the case study</th><th>Code to inspect</th><th>Study note</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>1. Basic-app/main.py</code></td>
+        <td>Creates the FastAPI application and defines all HTTP endpoints for the in-memory employee API.</td>
+        <td><code>app = FastAPI(...)</code>, <code>employees_db</code>, route decorators like <code>@app.post()</code>, and <code>HTTPException</code>.</td>
+        <td>This is the best first file to study because it shows how a client request enters the app, how route functions run, and how JSON responses are returned.</td>
+      </tr>
+      <tr>
+        <td><code>1. Basic-app/model.py</code></td>
+        <td>Defines the Pydantic models used for request validation and response formatting.</td>
+        <td><code>EmployeeBase</code>, <code>EmployeeCreate</code>, <code>EmployeeUpdate</code>, <code>EmployeeResponse</code>, <code>EmailStr</code>, <code>Field</code>, and <code>Literal</code>.</td>
+        <td>This file explains the API contract: what data the API accepts, what fields are optional, what values are valid, and what the response should look like.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Reference implementation: <code>1. Basic-app/model.py</code></h3>
+<pre><code>from pydantic import BaseModel, Field, EmailStr, StrictInt
+from typing import Optional, Literal
+
+
+class EmployeeBase(BaseModel):
+    name: str = Field(
+        ...,
+        min_length=3,
+        max_length=100,
+        description="Employee full name"
+    )
+
+    email: EmailStr = Field(
+        ...,
+        description="Unique employee email address"
+    )
+
+    department: Literal[
+        "HR",
+        "IT",
+        "Finance",
+        "Sales"
+    ] = Field(
+        ...,
+        description="Employee department"
+    )
+
+    age: Optional[StrictInt] = Field(
+        default=None,
+        ge=1,
+        le=120,
+        description="Employee age must be between 1 and 120"
+    )
+
+
+class EmployeeCreate(EmployeeBase):
+    pass
+
+
+class EmployeeUpdate(BaseModel):
+    name: Optional[str] = Field(
+        default=None,
+        min_length=3,
+        max_length=100,
+        description="Employee full name"
+    )
+
+    email: Optional[EmailStr] = Field(
+        default=None,
+        description="Unique employee email address"
+    )
+
+    department: Optional[
+        Literal[
+            "HR",
+            "IT",
+            "Finance",
+            "Sales"
+        ]
+    ] = Field(
+        default=None,
+        description="Employee department"
+    )
+
+    age: Optional[StrictInt] = Field(
+        default=None,
+        ge=1,
+        le=120,
+        description="Employee age must be between 1 and 120"
+    )
+
+
+class EmployeeResponse(EmployeeBase):
+    id: int
+
+    model_config = {
+        "from_attributes": True
+    }</code></pre>
+
+  <h3>Pseudocode: <code>1. Basic-app/model.py</code></h3>
+<pre><code>Define shared employee fields:
+    name must be text with valid length
+    email must look like an email address
+    department must be one of the allowed values
+    age is optional but must be a strict integer in range
+
+Create model:
+    reuse all shared employee fields
+
+Update model:
+    make every editable field optional
+
+Response model:
+    reuse shared fields
+    include employee id in API output</code></pre>
+
+  <table>
+    <thead><tr><th>Code block</th><th>Explanation</th><th>Study point</th></tr></thead>
+    <tbody>
+      <tr><td><code>EmployeeBase</code></td><td>Contains fields shared by employee create and response models.</td><td>Use a base schema when multiple API models share the same validation rules.</td></tr>
+      <tr><td><code>Field(...)</code></td><td>The ellipsis means the field is required.</td><td>Required fields must be present in incoming JSON, otherwise FastAPI returns <code>422</code>.</td></tr>
+      <tr><td><code>EmailStr</code></td><td>Validates that the value has email format.</td><td>This requires the <code>email-validator</code> dependency.</td></tr>
+      <tr><td><code>Literal</code></td><td>Limits department to <code>HR</code>, <code>IT</code>, <code>Finance</code>, or <code>Sales</code>.</td><td>Use this for small fixed choices instead of free text.</td></tr>
+      <tr><td><code>StrictInt</code></td><td>Rejects string numbers such as <code>"33"</code>.</td><td>Strict types prevent hidden type conversion.</td></tr>
+      <tr><td><code>EmployeeUpdate</code></td><td>Makes every field optional for update requests.</td><td>The client can send only the values it wants to change.</td></tr>
+      <tr><td><code>EmployeeResponse</code></td><td>Adds <code>id</code> to the returned employee shape.</td><td>Response models can include fields that create requests do not need.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reference implementation: <code>1. Basic-app/main.py</code></h3>
+<pre><code>from fastapi import FastAPI, HTTPException, status
+from typing import List
+
+from model import (
+    EmployeeCreate,
+    EmployeeUpdate,
+    EmployeeResponse
+)
+
+app = FastAPI(
+    title="Employee Management API",
+    description="CRUD operations for Employee Management",
+    version="1.0.0"
+)
+
+employees_db: List[EmployeeResponse] = []
+
+
+@app.get("/")
+def home():
+    return {"message": "Welcome to Employee Dashboard"}
+
+
+@app.get("/about")
+def about():
+    return {
+        "message": "This website is designed for doing CRUD operations over employee data"
+    }
+
+
+@app.post(
+    "/add_employee",
+    response_model=EmployeeResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Employee",
+    description="Add a new employee to the system"
+)
+def add_employee(new_employee: EmployeeCreate):
+
+    for employee in employees_db:
+        if employee.id == new_employee.id:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Employee with EmployeeID {new_employee.id} already exists"
+            )
+
+    employee = EmployeeResponse(**new_employee.model_dump())
+
+    employees_db.append(employee)
+
+    return employee
+
+
+@app.get(
+    "/employees",
+    response_model=List[EmployeeResponse],
+    summary="Get All Employees"
+)
+def get_employees():
+    return employees_db
+
+
+@app.get(
+    "/employee/{emp_id}",
+    response_model=EmployeeResponse,
+    summary="Get Employee By ID"
+)
+def get_employee(emp_id: int):
+
+    for employee in employees_db:
+        if employee.id == emp_id:
+            return employee
+
+    raise HTTPException(
+        status_code=404,
+        detail="Employee not found"
+    )
+
+
+@app.put(
+    "/update_employee/{emp_id}",
+    response_model=EmployeeResponse,
+    summary="Update Employee"
+)
+def update_employee(
+    emp_id: int,
+    updated_employee: EmployeeUpdate
+):
+
+    for index, employee in enumerate(employees_db):
+
+        if employee.id == emp_id:
+
+            employees_db[index] = EmployeeResponse(
+                id=emp_id,
+                **updated_employee.model_dump()
+            )
+
+            return employees_db[index]
+
+    raise HTTPException(
+        status_code=404,
+        detail=f"Employee with EmployeeID {emp_id} not found"
+    )
+
+
+@app.delete(
+    "/remove_employee/{emp_id}",
+    summary="Delete Employee"
+)
+def remove_employee(emp_id: int):
+
+    for index, employee in enumerate(employees_db):
+
+        if employee.id == emp_id:
+
+            employees_db.pop(index)
+
+            return {
+                "message": f"Employee with EmployeeID {emp_id} successfully removed"
+            }
+
+    raise HTTPException(
+        status_code=404,
+        detail="Employee not found"
+    )</code></pre>
+
+  <h3>Pseudocode: <code>1. Basic-app/main.py</code></h3>
+<pre><code>Create FastAPI app
+Create empty in-memory employee list
+
+For create employee:
+    validate request body with EmployeeCreate
+    check if employee id already exists
+    if duplicate, return 400 error
+    convert request data into EmployeeResponse
+    append employee to list
+    return created employee
+
+For read/list/update/delete:
+    search employees_db by employee id when needed
+    return employee data when found
+    return 404 error when not found</code></pre>
+
+  <table>
+    <thead><tr><th>Code block</th><th>Explanation</th><th>Study point</th></tr></thead>
+    <tbody>
+      <tr><td><code>app = FastAPI(...)</code></td><td>Creates the FastAPI application and adds metadata for generated docs.</td><td>Swagger UI reads title, description, route summaries, and response models from this code.</td></tr>
+      <tr><td><code>employees_db</code></td><td>A process-local Python list used as temporary storage.</td><td>Simple for learning, but all records disappear when the process stops.</td></tr>
+      <tr><td><code>@app.post(...)</code></td><td>Maps <code>POST /add_employee</code> to <code>add_employee()</code>.</td><td>The decorator defines the endpoint path, method, status code, docs summary, and response model.</td></tr>
+      <tr><td><code>new_employee: EmployeeCreate</code></td><td>Tells FastAPI to validate the request body with Pydantic.</td><td>The route function only runs after validation succeeds.</td></tr>
+      <tr><td>Duplicate ID loop</td><td>Checks whether the submitted employee ID already exists.</td><td>This is a business rule, so failure returns <code>400</code>, not <code>422</code>.</td></tr>
+      <tr><td><code>EmployeeResponse(**new_employee.model_dump())</code></td><td>Converts the validated create model into the response model.</td><td>Shows how Pydantic models can be transformed into other Pydantic models.</td></tr>
+      <tr><td><code>HTTPException</code></td><td>Returns controlled API errors for duplicate or missing records.</td><td>Use explicit status codes for predictable client behavior.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Pydantic validation walkthrough: Basic app</h3>
+  <p>FastAPI uses the type hints in the route function to decide which Pydantic model should validate the request body. In <code>add_employee(new_employee: EmployeeCreate)</code>, the incoming JSON must satisfy <code>EmployeeCreate</code> before the function body runs.</p>
+  <table>
+    <thead><tr><th>Validation target</th><th>Rule in code</th><th>Accepted example</th><th>Rejected example</th><th>What FastAPI returns</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td><code>str</code>, <code>min_length=3</code>, <code>max_length=100</code></td><td><code>"Santosh Kumar"</code></td><td><code>"SK"</code></td><td><code>422 Unprocessable Entity</code></td></tr>
+      <tr><td><code>email</code></td><td><code>EmailStr</code></td><td><code>"santosh@company.com"</code></td><td><code>"bad-email"</code></td><td><code>422 Unprocessable Entity</code></td></tr>
+      <tr><td><code>department</code></td><td><code>Literal["HR", "IT", "Finance", "Sales"]</code></td><td><code>"IT"</code></td><td><code>"Marketing"</code></td><td><code>422 Unprocessable Entity</code></td></tr>
+      <tr><td><code>age</code></td><td><code>Optional[StrictInt]</code>, <code>ge=1</code>, <code>le=120</code></td><td><code>33</code> or omitted</td><td><code>"33"</code>, <code>0</code>, <code>121</code></td><td><code>422 Unprocessable Entity</code></td></tr>
+      <tr><td><code>id</code></td><td><code>id: int</code> in <code>EmployeeResponse</code></td><td><code>101</code></td><td>Missing when building <code>EmployeeResponse</code></td><td>Server-side model construction error if the app tries to return an invalid response object.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Validation flow: Basic create request</h3>
+  <table>
+    <thead><tr><th>Step</th><th>What happens</th><th>Where to look</th></tr></thead>
+    <tbody>
+      <tr><td>1. JSON arrives</td><td>The client sends a request body to <code>POST /add_employee</code>.</td><td><code>main.py</code></td></tr>
+      <tr><td>2. Model is selected</td><td>FastAPI sees <code>new_employee: EmployeeCreate</code> and uses that model for body validation.</td><td><code>add_employee()</code></td></tr>
+      <tr><td>3. Field rules run</td><td>Pydantic checks string length, email format, allowed department values, integer strictness, and numeric range.</td><td><code>model.py</code></td></tr>
+      <tr><td>4. Valid object is created</td><td>If validation passes, <code>new_employee</code> becomes a Python object with typed attributes.</td><td><code>new_employee.name</code>, <code>new_employee.email</code></td></tr>
+      <tr><td>5. Business rule runs</td><td>The route checks duplicate employee IDs after Pydantic validation has already succeeded.</td><td><code>for employee in employees_db</code></td></tr>
+      <tr><td>6. Response is shaped</td><td><code>response_model=EmployeeResponse</code> controls the final JSON structure.</td><td><code>@app.post(...)</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Request lifecycle: Basic app</h3>
+  <div class="flow-diagram compact" aria-label="Basic app file flow">
+    <div class="flow-step"><b class="flow-icon">REQ</b><strong>Request body</strong><span>The client sends JSON to a route in <code>main.py</code>.</span></div>
+    <div class="flow-step"><b class="flow-icon">VAL</b><strong>Validation</strong><span>FastAPI checks the JSON against classes from <code>model.py</code>.</span></div>
+    <div class="flow-step"><b class="flow-icon">MEM</b><strong>Memory update</strong><span>The route reads or changes <code>employees_db</code>.</span></div>
+    <div class="flow-step"><b class="flow-icon">ERR</b><strong>Error checks</strong><span>The route raises <code>HTTPException</code> for duplicate or missing records.</span></div>
+    <div class="flow-step"><b class="flow-icon">OUT</b><strong>Response</strong><span><code>response_model</code> shapes the final JSON response.</span></div>
+  </div>
+
+  <h3>Basic app API contract</h3>
   <table>
     <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th><th>Model</th></tr></thead>
     <tbody>
       <tr><td><span class="badge badge-get">GET</span></td><td><code>/</code></td><td>Welcome message</td><td>Dictionary response</td></tr>
       <tr><td><span class="badge badge-get">GET</span></td><td><code>/about</code></td><td>Project description</td><td>Dictionary response</td></tr>
-      <tr><td><span class="badge badge-post">POST</span></td><td><code>/add_employee</code></td><td>Create employee</td><td><code>EmployeeCreate</code> in, <code>EmployeeResponse</code> out</td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td><code>/add_employee</code></td><td>Create employee</td><td><code>201 Created</code>, <code>EmployeeCreate</code> in, <code>EmployeeResponse</code> out</td></tr>
       <tr><td><span class="badge badge-get">GET</span></td><td><code>/employees</code></td><td>List employees</td><td><code>list[EmployeeResponse]</code></td></tr>
       <tr><td><span class="badge badge-get">GET</span></td><td><code>/employee/{emp_id}</code></td><td>Read one employee</td><td><code>EmployeeResponse</code></td></tr>
       <tr><td><span class="badge badge-put">PUT</span></td><td><code>/update_employee/{emp_id}</code></td><td>Full update</td><td><code>EmployeeUpdate</code> in, <code>EmployeeResponse</code> out</td></tr>
@@ -1165,25 +1518,7 @@ FROM python:3.12-slim</code></pre>
     </tbody>
   </table>
 
-  <h3>Employee model explained</h3>
-<pre><code><span class="kw">class</span> <span class="fn">EmployeeBase</span>(BaseModel):
-    name: str = Field(..., min_length=<span class="num">3</span>, max_length=<span class="num">50</span>)
-    department: Literal[<span class="str">"HR"</span>, <span class="str">"IT"</span>, <span class="str">"Finance"</span>, <span class="str">"Sales"</span>]
-    email: EmailStr
-    age: Optional[StrictInt] = Field(default=<span class="kw">None</span>, gt=<span class="num">0</span>, le=<span class="num">120</span>)</code></pre>
-
-  <table>
-    <thead><tr><th>Field</th><th>Rule</th><th>Why it matters</th></tr></thead>
-    <tbody>
-      <tr><td><code>name</code></td><td>3 to 50 characters</td><td>Prevents empty or unrealistic names.</td></tr>
-      <tr><td><code>department</code></td><td>Only HR, IT, Finance, Sales</td><td>Creates a controlled set of values.</td></tr>
-      <tr><td><code>email</code></td><td>Valid email format</td><td>Requires <code>email-validator</code>.</td></tr>
-      <tr><td><code>age</code></td><td>Optional strict integer, 1 to 120</td><td>Rejects strings like <code>"33"</code> and invalid ranges.</td></tr>
-      <tr><td><code>id</code></td><td>Positive integer</td><td>Used as the employee identifier.</td></tr>
-    </tbody>
-  </table>
-
-  <h3>Create employee request</h3>
+  <h3>Basic app create employee request</h3>
 <pre><code>curl -X POST http://127.0.0.1:8000/add_employee \
   -H <span class="str">"Content-Type: application/json"</span> \
   -d '{
@@ -1194,8 +1529,8 @@ FROM python:3.12-slim</code></pre>
     <span class="str">"age"</span>: <span class="num">33</span>
   }'</code></pre>
 
-  <h3>Common responses</h3>
-<pre><code><span class="cm"># Success: 200 OK</span>
+  <h3>Basic app common responses</h3>
+<pre><code><span class="cm"># Success: 201 Created</span>
 {
   <span class="str">"id"</span>: <span class="num">101</span>,
   <span class="str">"name"</span>: <span class="str">"Santosh Kumar"</span>,
@@ -1219,7 +1554,735 @@ FROM python:3.12-slim</code></pre>
   <span class="str">"detail"</span>: [...]
 }</code></pre>
 
-  <div class="tip"><p><strong>Study point:</strong> this project shows the core FastAPI pattern: route decorator, typed function parameters, Pydantic model, business rule check, response model, and HTTP error.</p></div>
+  <div class="tip"><p><strong>Study point:</strong> the basic app shows the core FastAPI pattern: route decorator, typed function parameters, Pydantic model, business rule check, response model, and HTTP error.</p></div>
+
+  <h3>Case Study 2: Upgrading to Persistent CRUD with SQLite</h3>
+  <p><strong>Scenario:</strong> convert the foundation API into a more realistic backend where employee records are stored in SQLite. This case study introduces SQLAlchemy sessions, ORM table models, reusable database functions, and a cleaner separation between HTTP logic and persistence logic.</p>
+
+  <div class="callout-grid">
+    <div class="card">
+      <div class="mini-title">Study focus</div>
+      <p>Learn how FastAPI uses dependencies to provide database sessions and how route functions delegate database work to a CRUD layer.</p>
+    </div>
+    <div class="card">
+      <div class="mini-title">Design decision</div>
+      <p>The project separates <code>main.py</code>, <code>database.py</code>, <code>models.py</code>, <code>schemas.py</code>, and <code>crud.py</code> so each file has one clear responsibility.</p>
+    </div>
+    <div class="card">
+      <div class="mini-title">Production idea</div>
+      <p>This structure is closer to real API projects because it keeps validation, table definitions, database queries, and HTTP routing independent.</p>
+    </div>
+  </div>
+
+  <h3>Source analysis: SQLite CRUD app</h3>
+  <table>
+    <thead><tr><th>Source file</th><th>Role in the case study</th><th>Code to inspect</th><th>Study note</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>2. CRUD-app/main.py</code></td>
+        <td>Creates the FastAPI app, creates database tables, defines routes, opens database sessions, and maps HTTP errors to API responses.</td>
+        <td><code>Base.metadata.create_all(bind=engine)</code>, <code>get_db()</code>, <code>Depends(get_db)</code>, route decorators, and calls to <code>crud.py</code>.</td>
+        <td>This file is the controller layer. It should stay focused on HTTP behavior: request handling, dependency injection, status errors, and response models.</td>
+      </tr>
+      <tr>
+        <td><code>2. CRUD-app/database.py</code></td>
+        <td>Configures the SQLite database connection and prepares SQLAlchemy session creation.</td>
+        <td><code>SQLALCHEMY_DATABASE_URL</code>, <code>create_engine()</code>, <code>SessionLocal</code>, and <code>Base = declarative_base()</code>.</td>
+        <td>This file centralizes database setup so the rest of the app can reuse one engine, one session factory, and one declarative base for models.</td>
+      </tr>
+      <tr>
+        <td><code>2. CRUD-app/models.py</code></td>
+        <td>Defines the SQLAlchemy table structure for employees.</td>
+        <td><code>class Employee(Base)</code>, <code>__tablename__</code>, <code>Column</code>, <code>Enum</code>, <code>CheckConstraint</code>, <code>created_at</code>, and <code>updated_at</code>.</td>
+        <td>This is the database schema layer. It decides what columns exist, which fields are unique, which fields are indexed, and which database constraints protect the data.</td>
+      </tr>
+      <tr>
+        <td><code>2. CRUD-app/schemas.py</code></td>
+        <td>Defines the Pydantic schemas for create requests, update requests, and API responses.</td>
+        <td><code>EmployeeCreate</code>, <code>EmployeeUpdate</code>, <code>EmployeeResponse</code>, validation rules, and <code>model_config = {"from_attributes": True}</code>.</td>
+        <td>This file separates API data validation from database table design. The response schema can convert SQLAlchemy objects into JSON-safe API responses.</td>
+      </tr>
+      <tr>
+        <td><code>2. CRUD-app/crud.py</code></td>
+        <td>Contains reusable database operations for reading, creating, updating, and deleting employees.</td>
+        <td><code>get_employees()</code>, <code>get_employee()</code>, <code>get_employee_by_email()</code>, <code>create_employee()</code>, <code>update_employee()</code>, and <code>delete_employee()</code>.</td>
+        <td>This is the persistence logic layer. Moving database queries here keeps route functions cleaner and makes the database behavior easier to test or reuse later.</td>
+      </tr>
+      <tr>
+        <td><code>2. CRUD-app/test.db</code></td>
+        <td>Stores the SQLite database data created by the CRUD app.</td>
+        <td>SQLite tables generated from <code>models.py</code> when <code>Base.metadata.create_all(bind=engine)</code> runs.</td>
+        <td>This file is why the CRUD app has persistence. Unlike the basic app list, rows can remain available after the server restarts.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Reference implementation: <code>2. CRUD-app/database.py</code></h3>
+<pre><code>from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={'check_same_thread': False}
+)
+
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+Base = declarative_base()</code></pre>
+
+  <h3>Pseudocode: <code>2. CRUD-app/database.py</code></h3>
+<pre><code>Set SQLite database file path
+Create SQLAlchemy engine using that path
+Create SessionLocal factory for request sessions
+Create Base class for database table models</code></pre>
+
+  <table>
+    <thead><tr><th>Code block</th><th>Explanation</th><th>Study point</th></tr></thead>
+    <tbody>
+      <tr><td><code>SQLALCHEMY_DATABASE_URL</code></td><td>Points SQLAlchemy to the local SQLite file <code>test.db</code>.</td><td>The URL decides where data is stored.</td></tr>
+      <tr><td><code>create_engine()</code></td><td>Creates the database engine used by SQLAlchemy to talk to SQLite.</td><td>The engine is the shared database connection configuration.</td></tr>
+      <tr><td><code>check_same_thread=False</code></td><td>Allows SQLite connections to be used safely with FastAPI request handling.</td><td>This setting is common for SQLite examples with FastAPI.</td></tr>
+      <tr><td><code>SessionLocal</code></td><td>Factory for creating database sessions.</td><td>Each request should get its own session.</td></tr>
+      <tr><td><code>Base</code></td><td>Parent class for SQLAlchemy table models.</td><td>Models inherit from this so SQLAlchemy can discover table metadata.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reference implementation: <code>2. CRUD-app/models.py</code></h3>
+<pre><code>from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    CheckConstraint,
+    Enum,
+    DateTime
+)
+from datetime import datetime
+
+from database import Base
+
+
+class Employee(Base):
+    __tablename__ = "employees"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    name = Column(
+        String(100),
+        nullable=False,
+        index=True
+    )
+
+    email = Column(
+        String(255),
+        unique=True,
+        nullable=False,
+        index=True
+    )
+
+    age = Column(
+        Integer,
+        nullable=True
+    )
+
+    department = Column(
+        Enum(
+            "HR",
+            "IT",
+            "Finance",
+            "Sales",
+            name="department_enum"
+        ),
+        nullable=False,
+        index=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "age &gt;= 1 AND age &lt;= 120",
+            name="check_age_range"
+        ),
+    )</code></pre>
+
+  <h3>Pseudocode: <code>2. CRUD-app/models.py</code></h3>
+<pre><code>Define Employee database table
+Create primary key id column
+Create required name column
+Create unique required email column
+Create optional age column
+Create department column with allowed values
+Create created_at and updated_at timestamp columns
+Add database rule that age must stay between 1 and 120</code></pre>
+
+  <table>
+    <thead><tr><th>Code block</th><th>Explanation</th><th>Study point</th></tr></thead>
+    <tbody>
+      <tr><td><code>class Employee(Base)</code></td><td>Defines the Python class mapped to the employee table.</td><td>SQLAlchemy models describe database tables, not request bodies.</td></tr>
+      <tr><td><code>__tablename__</code></td><td>Sets the actual table name to <code>employees</code>.</td><td>The class name and table name do not have to be identical.</td></tr>
+      <tr><td><code>id</code></td><td>Primary key column used as the unique row identifier.</td><td>The database generates employee IDs in this app.</td></tr>
+      <tr><td><code>email</code></td><td>Unique, required, indexed string column.</td><td>This protects stored data from duplicate email addresses.</td></tr>
+      <tr><td><code>department</code></td><td>Enum column limited to four department values.</td><td>The database mirrors the allowed values from Pydantic.</td></tr>
+      <tr><td><code>created_at</code> and <code>updated_at</code></td><td>Track row creation and update timestamps.</td><td>Real APIs usually need audit fields.</td></tr>
+      <tr><td><code>CheckConstraint</code></td><td>Prevents invalid age values at the database level.</td><td>Database constraints protect data even if invalid values bypass the API.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reference implementation: <code>2. CRUD-app/schemas.py</code></h3>
+<pre><code>from pydantic import BaseModel, Field, EmailStr, StrictInt
+from typing import Optional, Literal
+
+
+class EmployeeBase(BaseModel):
+    name: str = Field(
+        ...,
+        min_length=3,
+        max_length=100,
+        description="Employee full name"
+    )
+
+    email: EmailStr = Field(
+        ...,
+        description="Unique employee email address"
+    )
+
+    department: Literal[
+        "HR",
+        "IT",
+        "Finance",
+        "Sales"
+    ] = Field(
+        ...,
+        description="Employee department"
+    )
+
+    age: Optional[StrictInt] = Field(
+        default=None,
+        ge=1,
+        le=120,
+        description="Employee age must be between 1 and 120"
+    )
+
+
+class EmployeeCreate(EmployeeBase):
+    pass
+
+
+class EmployeeUpdate(BaseModel):
+    name: Optional[str] = Field(
+        default=None,
+        min_length=3,
+        max_length=100,
+        description="Employee full name"
+    )
+
+    email: Optional[EmailStr] = Field(
+        default=None,
+        description="Unique employee email address"
+    )
+
+    department: Optional[
+        Literal[
+            "HR",
+            "IT",
+            "Finance",
+            "Sales"
+        ]
+    ] = Field(
+        default=None,
+        description="Employee department"
+    )
+
+    age: Optional[StrictInt] = Field(
+        default=None,
+        ge=1,
+        le=120,
+        description="Employee age must be between 1 and 120"
+    )
+
+
+class EmployeeResponse(EmployeeBase):
+    id: int
+
+    model_config = {
+        "from_attributes": True
+    }</code></pre>
+
+  <h3>Pseudocode: <code>2. CRUD-app/schemas.py</code></h3>
+<pre><code>Define shared employee API fields and validation rules
+Use shared fields for create requests
+Use optional fields for update requests
+Use response schema to include database-generated id
+Allow response schema to read values from SQLAlchemy objects</code></pre>
+
+  <table>
+    <thead><tr><th>Code block</th><th>Explanation</th><th>Study point</th></tr></thead>
+    <tbody>
+      <tr><td><code>EmployeeBase</code></td><td>Defines shared API fields and validation rules.</td><td>Pydantic schemas are the API contract.</td></tr>
+      <tr><td><code>EmployeeCreate</code></td><td>Represents the body accepted by <code>POST /employees</code>.</td><td>The create request does not include <code>id</code>; the database creates it.</td></tr>
+      <tr><td><code>EmployeeUpdate</code></td><td>Uses optional fields so partial updates are possible.</td><td>Works with <code>exclude_unset=True</code> in <code>crud.py</code>.</td></tr>
+      <tr><td><code>EmployeeResponse</code></td><td>Adds <code>id</code> to the fields returned by the API.</td><td>Response schemas can expose generated database values.</td></tr>
+      <tr><td><code>from_attributes</code></td><td>Allows Pydantic to read fields from SQLAlchemy model objects.</td><td>This is why routes can return ORM objects while still using response models.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reference implementation: <code>2. CRUD-app/crud.py</code></h3>
+<pre><code>from sqlalchemy.orm import Session
+import models, schemas
+
+
+def get_employees(db: Session):
+    return db.query(models.Employee).all()
+
+
+def get_employee(db: Session, emp_id: int):
+    return (
+        db.query(models.Employee)
+        .filter(models.Employee.id == emp_id)
+        .first()
+    )
+
+
+def get_employee_by_email(db: Session, email: str):
+    return (
+        db.query(models.Employee)
+        .filter(models.Employee.email == email)
+        .first()
+    )
+
+
+def create_employee(db: Session, employee: schemas.EmployeeCreate):
+    db_employee = models.Employee(
+        name=employee.name,
+        email=employee.email,
+        department=employee.department,
+        age=employee.age
+    )
+
+    db.add(db_employee)
+    db.commit()
+    db.refresh(db_employee)
+
+    return db_employee
+
+
+def update_employee(
+    db: Session,
+    emp_id: int,
+    employee: schemas.EmployeeUpdate
+):
+    db_employee = (
+        db.query(models.Employee)
+        .filter(models.Employee.id == emp_id)
+        .first()
+    )
+
+    if not db_employee:
+        return None
+
+    update_data = employee.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(db_employee, key, value)
+
+    db.commit()
+    db.refresh(db_employee)
+
+    return db_employee
+
+
+def delete_employee(db: Session, emp_id: int):
+    db_employee = (
+        db.query(models.Employee)
+        .filter(models.Employee.id == emp_id)
+        .first()
+    )
+
+    if not db_employee:
+        return None
+
+    db.delete(db_employee)
+    db.commit()
+
+    return db_employee</code></pre>
+
+  <h3>Pseudocode: <code>2. CRUD-app/crud.py</code></h3>
+<pre><code>For list:
+    return all employee rows
+
+For read:
+    filter employee table by id
+    return first matching row or None
+
+For create:
+    build Employee ORM object from validated schema
+    add object to database session
+    commit transaction
+    refresh object to load generated values
+    return saved employee
+
+For update:
+    find employee by id
+    if not found, return None
+    apply only fields sent by client
+    commit and refresh
+    return updated employee
+
+For delete:
+    find employee by id
+    if not found, return None
+    delete row and commit
+    return deleted employee</code></pre>
+
+  <table>
+    <thead><tr><th>Code block</th><th>Explanation</th><th>Study point</th></tr></thead>
+    <tbody>
+      <tr><td><code>get_employees()</code></td><td>Returns every employee row.</td><td>This is the database-backed version of reading the full list.</td></tr>
+      <tr><td><code>get_employee()</code></td><td>Filters by employee ID and returns the first match.</td><td>Returns <code>None</code> when no row exists, letting the route decide the HTTP error.</td></tr>
+      <tr><td><code>get_employee_by_email()</code></td><td>Finds an employee using the unique email column.</td><td>Used before create to enforce a business-friendly duplicate email response.</td></tr>
+      <tr><td><code>create_employee()</code></td><td>Builds an ORM object, adds it, commits, refreshes, and returns it.</td><td>This is the standard SQLAlchemy create pattern.</td></tr>
+      <tr><td><code>model_dump(exclude_unset=True)</code></td><td>Extracts only fields the client sent during update.</td><td>Prevents omitted fields from overwriting stored values.</td></tr>
+      <tr><td><code>delete_employee()</code></td><td>Finds the row, deletes it, commits the transaction, and returns the deleted object.</td><td>Route logic can use <code>None</code> to return <code>404</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reference implementation: <code>2. CRUD-app/main.py</code></h3>
+<pre><code>import models, schemas, crud
+
+from fastapi import FastAPI, HTTPException, Depends, status
+from sqlalchemy.orm import Session
+from database import engine, SessionLocal, Base
+from typing import List
+
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.get("/")
+def home():
+    return {
+        "message": "Welcome to Employee Management System",
+        "available_endpoints": [
+            "GET /employees",
+            "GET /employees/{emp_id}",
+            "POST /employees",
+            "PUT /employees/{emp_id}",
+            "DELETE /employees/{emp_id}"
+        ],
+        "swagger_docs": "/docs",
+        "redoc_docs": "/redoc"
+    }
+
+@app.post(
+    "/employees",
+    response_model=schemas.EmployeeResponse,
+    status_code=status.HTTP_201_CREATED
+)
+def create_employee(
+    employee: schemas.EmployeeCreate,
+    db: Session = Depends(get_db)
+):
+    existing_employee = crud.get_employee_by_email(db, employee.email)
+
+    if existing_employee:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
+
+    return crud.create_employee(db, employee)
+
+
+@app.get("/employees", response_model=List[schemas.EmployeeResponse])
+def get_employees(db: Session = Depends(get_db)):
+    return crud.get_employees(db)
+
+
+@app.get("/employees/{emp_id}", response_model=schemas.EmployeeResponse)
+def get_employee(emp_id: int, db: Session = Depends(get_db)):
+    employee = crud.get_employee(db, emp_id)
+
+    if employee is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Employee Not Found"
+        )
+
+    return employee
+
+
+@app.put("/employees/{emp_id}", response_model=schemas.EmployeeResponse)
+def update_employee(
+    emp_id: int,
+    employee: schemas.EmployeeUpdate,
+    db: Session = Depends(get_db)
+):
+    db_employee = crud.update_employee(db, emp_id, employee)
+
+    if db_employee is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Employee Not Found"
+        )
+
+    return db_employee
+
+
+@app.delete("/employees/{emp_id}", response_model=dict)
+def delete_employee(emp_id: int, db: Session = Depends(get_db)):
+    employee = crud.delete_employee(db, emp_id)
+
+    if employee is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Employee Not Found"
+        )
+
+    return {"detail": "Employee Deleted"}</code></pre>
+
+  <h3>Pseudocode: <code>2. CRUD-app/main.py</code></h3>
+<pre><code>Import database, models, schemas, and CRUD functions
+Create database tables if missing
+Create FastAPI app
+
+For each request needing database access:
+    open database session
+    pass session into route
+    close session after response
+
+For create employee:
+    validate body with EmployeeCreate
+    check whether email already exists
+    if duplicate, return 400 error
+    call CRUD create function
+    return EmployeeResponse
+
+For read/list/update/delete:
+    receive request
+    call matching CRUD function
+    if row is missing, return 404 error
+    return validated response</code></pre>
+
+  <table>
+    <thead><tr><th>Code block</th><th>Explanation</th><th>Study point</th></tr></thead>
+    <tbody>
+      <tr><td><code>Base.metadata.create_all()</code></td><td>Creates database tables from SQLAlchemy models if they do not already exist.</td><td>Useful for learning projects; production apps usually use migrations.</td></tr>
+      <tr><td><code>get_db()</code></td><td>Creates a session, yields it to the endpoint, then closes it.</td><td>Shows request-scoped dependency management.</td></tr>
+      <tr><td><code>Depends(get_db)</code></td><td>Injects the database session into endpoint functions.</td><td>Keeps database setup out of each route body.</td></tr>
+      <tr><td><code>create_employee()</code> route</td><td>Validates input, checks duplicate email, then delegates creation to <code>crud.py</code>.</td><td>Routes should coordinate HTTP behavior, not contain all database logic.</td></tr>
+      <tr><td><code>get_employee()</code> route</td><td>Returns <code>404</code> when the CRUD function returns <code>None</code>.</td><td>Persistence functions can stay HTTP-agnostic.</td></tr>
+      <tr><td><code>response_model</code></td><td>Controls the JSON shape returned by each endpoint.</td><td>Response models keep API output consistent.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Pydantic validation and database constraints: SQLite CRUD app</h3>
+  <p>The CRUD app validates data in two layers. Pydantic validates incoming API data before route logic runs. SQLAlchemy and SQLite protect the stored data when rows are inserted or updated.</p>
+  <table>
+    <thead><tr><th>Field</th><th>Pydantic validation in <code>schemas.py</code></th><th>Database constraint in <code>models.py</code></th><th>Why both matter</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td><code>str</code>, <code>min_length=3</code>, <code>max_length=100</code></td><td><code>String(100)</code>, <code>nullable=False</code>, <code>index=True</code></td><td>Pydantic rejects bad API input; the database ensures stored rows still require a name.</td></tr>
+      <tr><td><code>email</code></td><td><code>EmailStr</code></td><td><code>String(255)</code>, <code>unique=True</code>, <code>nullable=False</code>, <code>index=True</code></td><td>Pydantic checks format; the database prevents duplicate stored emails.</td></tr>
+      <tr><td><code>department</code></td><td><code>Literal["HR", "IT", "Finance", "Sales"]</code></td><td><code>Enum("HR", "IT", "Finance", "Sales")</code>, <code>nullable=False</code></td><td>Both API and database agree on the allowed department values.</td></tr>
+      <tr><td><code>age</code></td><td><code>Optional[StrictInt]</code>, <code>ge=1</code>, <code>le=120</code></td><td><code>Integer</code>, <code>CheckConstraint("age &gt;= 1 AND age &lt;= 120")</code></td><td>Pydantic catches invalid requests early; the database guards against invalid persisted values.</td></tr>
+      <tr><td><code>id</code></td><td>Returned through <code>EmployeeResponse</code>, not required in <code>EmployeeCreate</code>.</td><td><code>Integer</code>, <code>primary_key=True</code>, <code>index=True</code></td><td>The database owns identity generation; clients do not manually choose employee IDs.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Validation flow: CRUD create request</h3>
+  <table>
+    <thead><tr><th>Step</th><th>What happens</th><th>Validation layer</th><th>Failure result</th></tr></thead>
+    <tbody>
+      <tr><td>1. Request body arrives</td><td>Client sends JSON to <code>POST /employees</code>.</td><td>FastAPI route parsing</td><td>Malformed JSON returns request parsing error.</td></tr>
+      <tr><td>2. Pydantic validates body</td><td><code>EmployeeCreate</code> checks field types, email format, department values, and age range.</td><td><code>schemas.py</code></td><td>Invalid fields return <code>422 Unprocessable Entity</code>.</td></tr>
+      <tr><td>3. Route checks duplicate email</td><td><code>crud.get_employee_by_email()</code> looks for an existing row with the same email.</td><td>Business rule in <code>main.py</code> and <code>crud.py</code></td><td>Duplicate email returns <code>400 Bad Request</code>.</td></tr>
+      <tr><td>4. ORM object is created</td><td><code>models.Employee(...)</code> maps validated data to a database row object.</td><td>SQLAlchemy model</td><td>Invalid ORM data can fail before or during commit.</td></tr>
+      <tr><td>5. Database commit runs</td><td><code>db.commit()</code> persists the employee row.</td><td>SQLite constraints</td><td>Constraint violations fail the transaction.</td></tr>
+      <tr><td>6. Response is serialized</td><td><code>EmployeeResponse</code> reads the SQLAlchemy object using <code>from_attributes</code>.</td><td>Pydantic response model</td><td>Response shape stays controlled by the API schema.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Architecture walkthrough: SQLite CRUD app</h3>
+  <div class="flow-diagram compact" aria-label="Database-backed CRUD app architecture diagram">
+    <div class="flow-step"><b class="flow-icon">REQ</b><strong>Request starts</strong><span>The route receives a request in <code>main.py</code>.</span></div>
+    <div class="flow-step"><b class="flow-icon">DEP</b><strong>Session dependency</strong><span><code>get_db()</code> provides a SQLAlchemy session per request.</span></div>
+    <div class="flow-step"><b class="flow-icon">CRUD</b><strong>Database logic</strong><span><code>crud.py</code> queries, inserts, updates, or deletes rows.</span></div>
+    <div class="flow-step"><b class="flow-icon">SQL</b><strong>SQLite storage</strong><span><code>models.py</code> maps Python classes to database tables.</span></div>
+    <div class="flow-step"><b class="flow-icon">RESP</b><strong>Schema response</strong><span><code>schemas.py</code> controls the JSON returned to clients.</span></div>
+  </div>
+
+  <h3>Request lifecycle: SQLite CRUD app</h3>
+  <table>
+    <thead><tr><th>Step</th><th>File involved</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>1. App starts</td><td><code>main.py</code>, <code>database.py</code>, <code>models.py</code></td><td>The database engine is imported, the <code>Employee</code> table model is registered, and <code>create_all()</code> creates missing tables.</td></tr>
+      <tr><td>2. Request arrives</td><td><code>main.py</code>, <code>schemas.py</code></td><td>FastAPI matches the URL to a route and validates the request body with <code>EmployeeCreate</code> or <code>EmployeeUpdate</code>.</td></tr>
+      <tr><td>3. Session opens</td><td><code>main.py</code>, <code>database.py</code></td><td><code>Depends(get_db)</code> calls <code>SessionLocal()</code> and gives the route a database session.</td></tr>
+      <tr><td>4. Query runs</td><td><code>crud.py</code>, <code>models.py</code></td><td>The CRUD function uses <code>db.query(models.Employee)</code>, <code>db.add()</code>, <code>db.commit()</code>, or <code>db.delete()</code>.</td></tr>
+      <tr><td>5. Response returns</td><td><code>main.py</code>, <code>schemas.py</code></td><td>The route returns a SQLAlchemy object or dictionary, and <code>response_model</code> shapes the final JSON.</td></tr>
+      <tr><td>6. Session closes</td><td><code>main.py</code></td><td>The <code>finally</code> block in <code>get_db()</code> closes the database session after the request finishes.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout-grid">
+    <div class="card">
+      <div class="mini-title">Run command</div>
+<pre><code>cd <span class="str">"2. CRUD-app"</span>
+uvicorn main:app --reload</code></pre>
+    </div>
+    <div class="card">
+      <div class="mini-title">Concepts to master</div>
+      <p>Trace <code>Depends(get_db)</code>, follow a request into <code>crud.py</code>, and observe where <code>commit()</code> and <code>refresh()</code> happen.</p>
+    </div>
+    <div class="card">
+      <div class="mini-title">Result of the upgrade</div>
+      <p>The API keeps employee records in SQLite, removes manual ID handling from the client, and organizes database behavior into reusable functions.</p>
+    </div>
+  </div>
+
+  <h3>CRUD app API contract</h3>
+  <table>
+    <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th><th>Implementation</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-get">GET</span></td><td><code>/</code></td><td>Welcome message and endpoint list</td><td><code>main.py</code></td></tr>
+      <tr><td><span class="badge badge-post">POST</span></td><td><code>/employees</code></td><td>Create employee</td><td><code>201 Created</code>, <code>crud.create_employee()</code></td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td><code>/employees</code></td><td>List employees</td><td><code>crud.get_employees()</code></td></tr>
+      <tr><td><span class="badge badge-get">GET</span></td><td><code>/employees/{emp_id}</code></td><td>Read one employee</td><td><code>crud.get_employee()</code></td></tr>
+      <tr><td><span class="badge badge-put">PUT</span></td><td><code>/employees/{emp_id}</code></td><td>Update employee</td><td><code>crud.update_employee()</code></td></tr>
+      <tr><td><span class="badge badge-delete">DELETE</span></td><td><code>/employees/{emp_id}</code></td><td>Delete employee</td><td><code>crud.delete_employee()</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>CRUD app create employee request</h3>
+<pre><code>curl -X POST http://127.0.0.1:8000/employees \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="str">"name"</span>: <span class="str">"Santosh Kumar"</span>,
+    <span class="str">"email"</span>: <span class="str">"santosh@company.com"</span>,
+    <span class="str">"department"</span>: <span class="str">"IT"</span>,
+    <span class="str">"age"</span>: <span class="num">33</span>
+  }'</code></pre>
+
+  <h3>What changed between the two case studies?</h3>
+  <table>
+    <thead><tr><th>Concept</th><th>Basic app</th><th>CRUD app</th></tr></thead>
+    <tbody>
+      <tr><td>Storage</td><td>Python list in memory</td><td>SQLite database through SQLAlchemy</td></tr>
+      <tr><td>Employee ID</td><td>Client sends <code>id</code> in the request body</td><td>Database generates <code>id</code></td></tr>
+      <tr><td>Validation</td><td><code>model.py</code></td><td><code>schemas.py</code></td></tr>
+      <tr><td>Database model</td><td>Not needed</td><td><code>models.py</code></td></tr>
+      <tr><td>Business logic</td><td>Inside route functions</td><td>Separated into <code>crud.py</code></td></tr>
+      <tr><td>Persistence</td><td>Lost after restart</td><td>Saved in <code>test.db</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Status code design in these APIs</h3>
+  <p>Status codes are part of the API contract. They tell the client what happened without requiring the client to parse the response message first.</p>
+  <table>
+    <thead><tr><th>Situation</th><th>Basic app</th><th>CRUD app</th><th>Why this status code fits</th></tr></thead>
+    <tbody>
+      <tr><td>Create success</td><td><code>POST /add_employee</code> returns <code>201 Created</code></td><td><code>POST /employees</code> returns <code>201 Created</code></td><td>A new employee resource was created.</td></tr>
+      <tr><td>Read/list success</td><td><code>GET</code> endpoints return <code>200 OK</code></td><td><code>GET</code> endpoints return <code>200 OK</code></td><td>The request succeeded and response data is included.</td></tr>
+      <tr><td>Update success</td><td><code>PUT /update_employee/{emp_id}</code> returns <code>200 OK</code></td><td><code>PUT /employees/{emp_id}</code> returns <code>200 OK</code></td><td>The employee was updated and the updated resource is returned.</td></tr>
+      <tr><td>Delete success</td><td><code>DELETE /remove_employee/{emp_id}</code> returns <code>200 OK</code></td><td><code>DELETE /employees/{emp_id}</code> returns <code>200 OK</code></td><td>Both apps return a confirmation JSON body. If no body is returned, <code>204 No Content</code> is also common.</td></tr>
+      <tr><td>Duplicate create</td><td>Duplicate ID returns <code>400 Bad Request</code></td><td>Duplicate email returns <code>400 Bad Request</code></td><td>The request is valid JSON, but it violates a business rule.</td></tr>
+      <tr><td>Missing employee</td><td>Missing ID returns <code>404 Not Found</code></td><td>Missing ID returns <code>404 Not Found</code></td><td>The requested resource does not exist.</td></tr>
+      <tr><td>Invalid request body</td><td>Pydantic returns <code>422 Unprocessable Entity</code></td><td>Pydantic returns <code>422 Unprocessable Entity</code></td><td>The request shape or field values failed validation before route logic ran.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Production structure: from current files to package layout</h3>
+  <p>The current folders are good for learning. In production, the same code should usually move into an importable Python package with routers, schemas, models, CRUD logic, and database setup separated by responsibility.</p>
+<pre><code>employee_api/
+├── app/
+│   ├── main.py                  <span class="cm"># create FastAPI app and include routers</span>
+│   ├── database.py              <span class="cm"># engine, SessionLocal, Base, get_db</span>
+│   ├── routers/
+│   │   └── employees.py         <span class="cm"># employee HTTP endpoints</span>
+│   ├── schemas/
+│   │   └── employee.py          <span class="cm"># Pydantic request/response models</span>
+│   ├── models/
+│   │   └── employee.py          <span class="cm"># SQLAlchemy table model</span>
+│   ├── crud/
+│   │   └── employee.py          <span class="cm"># reusable database operations</span>
+│   └── core/
+│       └── config.py            <span class="cm"># settings, database URL, environment config</span>
+├── tests/
+│   └── test_employees.py
+├── alembic/                     <span class="cm"># database migrations later</span>
+└── pyproject.toml</code></pre>
+
+  <table>
+    <thead><tr><th>Current file</th><th>Production destination</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td><code>2. CRUD-app/main.py</code></td><td><code>app/main.py</code> and <code>app/routers/employees.py</code></td><td>Keep app creation separate from employee route definitions.</td></tr>
+      <tr><td><code>2. CRUD-app/database.py</code></td><td><code>app/database.py</code></td><td>Central database setup remains shared across the app.</td></tr>
+      <tr><td><code>2. CRUD-app/models.py</code></td><td><code>app/models/employee.py</code></td><td>Each database entity can have its own model file as the project grows.</td></tr>
+      <tr><td><code>2. CRUD-app/schemas.py</code></td><td><code>app/schemas/employee.py</code></td><td>API schemas stay separate from database models.</td></tr>
+      <tr><td><code>2. CRUD-app/crud.py</code></td><td><code>app/crud/employee.py</code></td><td>Database operations become easier to test and reuse.</td></tr>
+      <tr><td><code>2. CRUD-app/test.db</code></td><td>Configured through <code>app/core/config.py</code> or environment variables</td><td>Production apps should not hard-code database paths inside source logic.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn"><p><strong>Production note:</strong> <code>Base.metadata.create_all()</code> is fine while learning. For production, use migrations such as Alembic so schema changes are versioned and reversible.</p></div>
+
+  <h3>Common mistakes and fixes</h3>
+  <table>
+    <thead><tr><th>Mistake</th><th>Why it happens</th><th>Better approach</th></tr></thead>
+    <tbody>
+      <tr><td>Putting all database queries inside route functions</td><td>It feels faster when the project is small.</td><td>Move reusable query logic into <code>crud.py</code> so routes stay focused on HTTP behavior.</td></tr>
+      <tr><td>Using one schema for create, update, and response</td><td>The data looks similar at first.</td><td>Use separate schemas because create, update, and response have different rules.</td></tr>
+      <tr><td>Forgetting <code>exclude_unset=True</code> during update</td><td>Optional fields default to <code>None</code>.</td><td>Only update fields the client actually sent.</td></tr>
+      <tr><td>Not closing database sessions</td><td>The app still works during small tests.</td><td>Use a dependency with <code>try</code>, <code>yield</code>, and <code>finally</code> to close the session.</td></tr>
+      <tr><td>Relying only on API validation</td><td>Pydantic catches many invalid requests.</td><td>Also use database constraints such as <code>unique=True</code> and <code>CheckConstraint</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practice tasks</h3>
+  <table>
+    <thead><tr><th>Task</th><th>Where to work</th><th>What it teaches</th></tr></thead>
+    <tbody>
+      <tr><td>Add a <code>designation</code> field to employees.</td><td><code>model.py</code>, <code>schemas.py</code>, <code>models.py</code></td><td>How schema changes move through request validation, response data, and database tables.</td></tr>
+      <tr><td>Add an endpoint to search employees by department.</td><td><code>main.py</code>, <code>crud.py</code></td><td>How query parameters and database filters work together.</td></tr>
+      <tr><td>Convert delete endpoints to <code>204 No Content</code>.</td><td><code>main.py</code></td><td>How response bodies and status codes must agree.</td></tr>
+      <tr><td>Add pagination to <code>GET /employees</code>.</td><td><code>main.py</code>, <code>crud.py</code></td><td>How to handle larger datasets with <code>offset</code> and <code>limit</code>.</td></tr>
+      <tr><td>Write tests for duplicate email and missing employee.</td><td>New test file</td><td>How to verify business rules and error responses.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Self-check questions</h3>
+  <table>
+    <thead><tr><th>Question</th><th>Expected understanding</th></tr></thead>
+    <tbody>
+      <tr><td>Why does the basic app lose data after restart?</td><td>It stores records in a process-local Python list instead of durable storage.</td></tr>
+      <tr><td>Why does the CRUD app not require the client to send <code>id</code>?</td><td>The database table generates the primary key.</td></tr>
+      <tr><td>Why do we need both <code>schemas.py</code> and <code>models.py</code>?</td><td>Schemas validate API data; models define database tables.</td></tr>
+      <tr><td>Why does <code>get_db()</code> use <code>yield</code>?</td><td>It gives the route a session, then resumes after the request to close it.</td></tr>
+      <tr><td>Why does <code>crud.create_employee()</code> call <code>refresh()</code> after <code>commit()</code>?</td><td>It reloads generated database values, such as the new employee ID.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip"><p><strong>Study point:</strong> the CRUD app shows how FastAPI fundamentals scale into a database-backed project structure.</p></div>
 </div>
 
 <div id="database" class="section">
@@ -1845,6 +2908,35 @@ function addCopyButtons(){
   });
 }
 
+function escapeHtml(value){
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function highlightPythonCode(){
+  const pythonPattern = /(^|\n)\s*(from|import|class|def|@app\.|SQLALCHEMY_|Base\.metadata|SessionLocal|engine\s*=|app\s*=)/;
+  const tokenPattern = /(#.*$|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b(?:from|import|class|def|return|if|not|for|in|try|finally|pass|True|False|None|yield|with|as|and|or|is)\b|\b\d+\b|\b([A-Za-z_]\w*)(?=\s*\()|(\*\*|==|!=|<=|>=|=|:))/gm;
+
+  document.querySelectorAll('pre code').forEach(code => {
+    if(code.querySelector('span')) return;
+
+    const raw = code.textContent;
+    if(!pythonPattern.test(raw)) return;
+
+    const escaped = escapeHtml(raw);
+    code.innerHTML = escaped.replace(tokenPattern, (match, _all, fnName, operator) => {
+      if(match.startsWith('#')) return `<span class="cm">${match}</span>`;
+      if(match.startsWith('"') || match.startsWith("'")) return `<span class="str">${match}</span>`;
+      if(/^\d+$/.test(match)) return `<span class="num">${match}</span>`;
+      if(fnName) return `<span class="fn">${match}</span>`;
+      if(operator) return `<span class="op">${match}</span>`;
+      return `<span class="kw">${match}</span>`;
+    });
+  });
+}
+
 buttons.forEach((button, index) => {
   button.addEventListener('keydown', event => {
     if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
@@ -1872,6 +2964,7 @@ window.addEventListener('resize', updateProgress);
 sections.forEach(section => {
   if(!section.classList.contains('active')) section.hidden = true;
 });
+highlightPythonCode();
 addCopyButtons();
 updateProgress();
 </script>

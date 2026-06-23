@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from typing import List
 
 from model import (
@@ -31,6 +31,7 @@ def about():
 @app.post(
     "/add_employee",
     response_model=EmployeeResponse,
+    status_code=status.HTTP_201_CREATED,
     summary="Create Employee",
     description="Add a new employee to the system"
 )

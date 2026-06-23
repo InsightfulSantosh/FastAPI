@@ -1,8 +1,28 @@
-# Employee Management API
+# FastAPI Employee Projects
 
-A small FastAPI application that exposes CRUD endpoints for managing employee
-records. The app stores records in an in-memory list, so data is reset whenever
-the server restarts.
+Learning projects for building Employee Management APIs with FastAPI.
+
+## Project Structure
+
+```text
+FastAPI/
+├── 1. Basic-app/
+│   ├── main.py
+│   └── model.py
+├── 2. CRUD-app/
+│   ├── crud.py
+│   ├── database.py
+│   ├── main.py
+│   ├── models.py
+│   ├── schemas.py
+│   └── test.db
+├── notebooks/
+│   └── Employee_API_guide.ipynb
+├── docs/
+├── README.md
+├── requirements.txt
+└── pyproject.toml
+```
 
 ## Features
 
@@ -38,9 +58,22 @@ Alternatively, if you use a `pyproject.toml` workflow:
 pip install -e .
 ```
 
-## Run The API
+## Run The Basic App
+
+The basic app stores records in an in-memory list, so data is reset whenever
+the server restarts.
 
 ```bash
+cd "1. Basic-app"
+uvicorn main:app --reload
+```
+
+## Run The CRUD App
+
+The CRUD app uses SQLAlchemy and SQLite.
+
+```bash
+cd "2. CRUD-app"
 uvicorn main:app --reload
 ```
 
@@ -50,7 +83,7 @@ The API will be available at:
 - Swagger docs: `http://127.0.0.1:8000/docs`
 - ReDoc docs: `http://127.0.0.1:8000/redoc`
 
-## API Endpoints
+## Basic App Endpoints
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
@@ -61,6 +94,17 @@ The API will be available at:
 | `GET` | `/employee/{emp_id}` | Get one employee by ID |
 | `PUT` | `/update_employee/{emp_id}` | Update one employee by ID |
 | `DELETE` | `/remove_employee/{emp_id}` | Delete one employee by ID |
+
+## CRUD App Endpoints
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/` | Welcome message |
+| `POST` | `/employees` | Create an employee |
+| `GET` | `/employees` | List all employees |
+| `GET` | `/employees/{emp_id}` | Get one employee by ID |
+| `PUT` | `/employees/{emp_id}` | Update one employee by ID |
+| `DELETE` | `/employees/{emp_id}` | Delete one employee by ID |
 
 ## Example Employee Payload
 
