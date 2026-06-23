@@ -2,6 +2,12 @@
 
 Learning projects for building Employee Management APIs with FastAPI.
 
+## Study Guide
+
+Read the published FastAPI study guide and case studies here:
+
+https://insightfulsantosh.github.io/FastAPI/fastapi.html
+
 ## Project Structure
 
 ```text
